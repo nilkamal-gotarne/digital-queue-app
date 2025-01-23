@@ -46,6 +46,16 @@ export default function Index() {
   }, [queueInfo]);
 
   const handleLogin = async () => {
+    if (!phoneNumber || !password) {
+      if (!phoneNumber && !password) {
+        alert("Please enter your phone number and password.");
+      } else if (!phoneNumber) {
+        alert("Please enter a valid phone number.");
+      } else {
+        alert("Please enter a valid password.");
+      }
+      return;
+    }
     try {
       const usersRef = collection(db, "users");
       const q = query(usersRef, where("phoneNumber", "==", phoneNumber));
@@ -103,6 +113,7 @@ export default function Index() {
         value={phoneNumber}
         onChangeText={setPhoneNumber}
         keyboardType="phone-pad"
+        maxLength={10} 
       />
       <TextInput
         style={styles.input}

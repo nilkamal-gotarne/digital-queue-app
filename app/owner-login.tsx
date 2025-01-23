@@ -20,27 +20,37 @@ export default function QueueOwnerLogin() {
   const { setUser, setIsLogged }: any = useGlobalContext();
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      alert("Please enter your email and password");
+    if (!email && !password) {
+      alert("Please enter your Email and password.");
       return;
     }
-
+  
+    if (!email) {
+      alert("Please enter a valid Email.");
+      return;
+    }
+  
+    if (!password) {
+      alert("Please enter a valid password.");
+      return;
+    }
+  
     try {
       const queueOwnersRef = collection(db, "queue_owners");
       const q = query(queueOwnersRef, where("email", "==", email));
       const querySnapshot = await getDocs(q);
-
+  
       if (querySnapshot.empty) {
         alert("Queue owner not found. Please check your email.");
         return;
       }
-
+  
       const ownerData = querySnapshot.docs[0].data();
       if (ownerData.password !== password) {
         alert("Incorrect password. Please try again.");
         return;
       }
-
+  
       // Queue owner exists and password is correct, save to global context and AsyncStorage
       const userData = {
         ...ownerData,
@@ -57,6 +67,7 @@ export default function QueueOwnerLogin() {
       alert("Error during login. Please try again.");
     }
   };
+  
 
   return (
     <LinearGradient

@@ -35,6 +35,8 @@ function HomeTab() {
   const { user }: any = useGlobalContext();
   const [joinedQueues, setJoinedQueues] = useState<any[]>([]);
   const [currentTime, setCurrentTime] = useState(moment());
+  
+  
 
   useEffect(() => {
     let unsubscribe: () => void;
@@ -89,11 +91,18 @@ function HomeTab() {
   const getRemainingTime = (endTime: any) => {
     const end = moment(endTime.toDate());
     const duration = moment.duration(end.diff(currentTime));
+    
+    if (duration.asSeconds() <= 0) {
+      return "Time Up";
+    }
+    
     const hours = Math.floor(duration.asHours());
     const minutes = Math.floor(duration.asMinutes()) % 60;
     const seconds = Math.floor(duration.asSeconds()) % 60;
+    
     return `${hours}h ${minutes}m ${seconds}s`;
   };
+  
   const handleLeaveQueue = async (
     queueMemberId: string,
     queueId: string,

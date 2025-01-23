@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ActivityIndicator } from "react-native";
 import {
   collection,
@@ -29,7 +29,6 @@ export default function JoinQueue() {
   const [queueName, setQueueName] = useState<string | null>(null);
   const [ownerName, setOwnerName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
   const handleBarCodeScanned = async (result: BarcodeScanningResult) => {
     console.log(
       '========================================='
@@ -315,7 +314,7 @@ export default function JoinQueue() {
       const queueSnapshot = await getDocs(queueQuery);
   
       if (queueSnapshot.empty) {
-        Alert.alert("Error", "No queues found for this lot");
+        Alert.alert("Error", "No queue owner found for this queue");
         return;
       }
   
@@ -425,6 +424,12 @@ export default function JoinQueue() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if(!cameraPermission?.granted){
+      requestCameraPermission()
+    }
+  },[])
   if (!cameraPermission) {
     return (
       <View style={styles.container}>
@@ -438,7 +443,7 @@ export default function JoinQueue() {
       <View style={styles.container}>
         <Text>No access to camera</Text>
         <TouchableOpacity
-          style={styles.button}
+          style={styles.button1}
           onPress={requestCameraPermission}
         >
           <Text style={styles.buttonText}>Grant Permission</Text>
@@ -563,6 +568,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 10,
     alignItems: 'center',
+  },
+  button1: {
+    backgroundColor: '#4287f5',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 350,
+    alignItems: 'center',
+    width:300,
+    left:33,
+
   },
   buttonText: {
     color: '#fff',

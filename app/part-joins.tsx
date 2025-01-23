@@ -7,6 +7,7 @@ import moment from "moment";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AppHeader from "@/components/Header";
 
 export default function PastQueues() {
   const { user }: any = useGlobalContext();
@@ -94,12 +95,14 @@ export default function PastQueues() {
   );
 
   return (
-    <LinearGradient
-      colors={["#4c669f", "#3b5998", "#192f6a"]}
-      style={styles.container}
+    <View>
+      <AppHeader title="Past Queues"/>
+    <View
+      // colors={["#4c669f", "#3b5998", "#192f6a"]}
+      // style={styles.container}
     >
-      <SafeAreaView style={styles.safeArea}>
-        <Text style={styles.title}>Past Queues</Text>
+      <SafeAreaView>
+        <Text></Text>
         {pastQueues.length > 0 ? (
           <FlatList
             data={pastQueues}
@@ -111,24 +114,25 @@ export default function PastQueues() {
         )}
         {renderModal()}
       </SafeAreaView>
-    </LinearGradient>
+    </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: "#fff",
-  },
+  // container: {
+  //   flex: 1,
+  // },
+  // safeArea: {
+  //   flex: 1,
+  //   padding: 20,
+  // },
+  // title: {
+  //   fontSize: 24,
+  //   fontWeight: "bold",
+  //   marginBottom: 20,
+  //   color: "red",
+  // },
   queueItem: {
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     padding: 15,
@@ -138,12 +142,12 @@ const styles = StyleSheet.create({
   queueText: {
     fontSize: 16,
     marginBottom: 5,
-    color: "#fff",
+    color: "#000000",
   },
   emptyText: {
     fontSize: 18,
     textAlign: "center",
-    color: "#fff",
+    color: "black",
   },
   modalContainer: {
     flex: 1,
@@ -152,7 +156,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    backgroundColor: "#fff",
+    backgroundColor: "black",
     padding: 20,
     borderRadius: 10,
     width: "80%",
@@ -161,12 +165,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 15,
-    color: "#333",
+    color: "#ffffff",
   },
   modalText: {
     fontSize: 16,
     marginBottom: 10,
-    color: "#333",
+    color: "#ffffff",
   },
   closeButton: {
     backgroundColor: "#3b5998",
@@ -176,7 +180,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   closeButtonText: {
-    color: "#fff",
+    color: "black",
     fontWeight: "bold",
   },
 });

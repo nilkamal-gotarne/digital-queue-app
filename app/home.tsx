@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  BackHandler,
 } from "react-native";
 import { useGlobalContext } from "../context/GlobalContext";
 import { router } from "expo-router";
@@ -28,6 +29,7 @@ import { Ionicons } from "@expo/vector-icons";
 import moment from "moment";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AppHeader from "@/components/Header";
 
 const Tab = createBottomTabNavigator();
 
@@ -38,8 +40,8 @@ function HomeTab() {
 
   useEffect(() => {
     let unsubscribe: () => void;
-
-    const setupQueueListener = () => {
+  
+    const setupQueueListener = async () => {
       if (user?.id) {
         const queueMembersRef = collection(db, "queue_members");
         const q = query(
@@ -47,24 +49,36 @@ function HomeTab() {
           where("userId", "==", user.id),
           where("status", "in", ["waiting", "processing", "temporary_leave"])
         );
-
-        unsubscribe = onSnapshot(q, (snapshot) => {
-          const queues = snapshot.docs.map((doc) => ({
-            ...doc.data(),
-            id: doc.id,
-          }));
-          setJoinedQueues(queues);
+  
+        unsubscribe = onSnapshot(q, async (snapshot) => {
+          const queueData = await Promise.all(
+            snapshot.docs.map(async (add:any) => {
+              const queueMemberData = add.data();
+              const queueId = queueMemberData.queueId;
+              
+              // Get the queue details from the 'queues' collection using queueId
+              const queueDoc = await getDoc(doc(db, "queues", queueId));
+              const queue:any = queueDoc.exists() ? queueDoc.data() : null;
+  
+              return {
+                ...queueMemberData,
+                id: add.id,
+                queueName: queue?.name || "Unknown Queue", // Set a default name if queue not found
+              };
+            })
+          );
+          setJoinedQueues(queueData);
         });
       }
     };
-
+  
     setupQueueListener();
-
+  
     // Update current time every second
     const timer = setInterval(() => {
       setCurrentTime(moment());
     }, 1000);
-
+  
     return () => {
       if (unsubscribe) {
         unsubscribe();
@@ -72,6 +86,7 @@ function HomeTab() {
       clearInterval(timer);
     };
   }, [user]);
+  
 
   const getQueueItemStyle = (status: string) => {
     switch (status) {
@@ -247,9 +262,11 @@ function HomeTab() {
   };
 
   return (
-    <LinearGradient
-      colors={["#4c669f", "#3b5998", "#192f6a"]}
-      style={styles.container}
+    <View>
+      <AppHeader title="Home"/>
+    <View
+      // colors={["#4c669f", "#3b5998", "#192f6a"]}
+      // style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.tabContent}>
         <View style={styles.buttonContainer}>
@@ -265,15 +282,17 @@ function HomeTab() {
             onPress={() => router.push("/part-joins")}
           >
             <Ionicons name="time-outline" size={48} color="#fff" />
-            <Text style={styles.bigButtonText}>Past Joined Queues</Text>
+            <Text style={styles.bigButtonText}>Past Queues</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.joinedQueuesSection}>
           <Text style={styles.sectionTitle}>Current Queues</Text>
           {joinedQueues.length > 0 ? (
             joinedQueues.map((queue, index) => (
+              // console.log("abcxxxxxxxxxxxxxxx",queue),
               <View key={index} style={getQueueItemStyle(queue.status)}>
-                <Text style={styles.queueText}>Queue: {queue.queueId}</Text>
+                <Text style={styles.queueText}>Queue: {queue.queueName}</Text>
+                {/* <Text style={styles.queueText}>name: {queue.name}</Text> */}
                 <Text style={styles.queueText}>Position: {queue.position}</Text>
                 <Text style={styles.queueText}>Status: {queue.status}</Text>
                 <Text style={styles.queueText}>
@@ -282,7 +301,7 @@ function HomeTab() {
                 <TouchableOpacity
                   style={styles.leaveButton}
                   onPress={() =>
-                    handleLeaveQueue(queue.id, queue.queueId, queue.position)
+                    handleLeaveQueue(queue.id, queue.queueId, queue.position,)
                   }
                 >
                   <Text style={styles.leaveButtonText}>Permanently Leave</Text>
@@ -313,25 +332,45 @@ function HomeTab() {
           )}
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
+    </View>
   );
 }
-
 function ProfileTab() {
   const { user, setUser, setIsLogged }: any = useGlobalContext();
 
   const handleLogout = async () => {
-    setUser(null);
-    setIsLogged(false);
-    await AsyncStorage.removeItem("userInfo");
-    await AsyncStorage.removeItem("role");
-    router.replace("/");
+    Alert.alert(
+      "Confirm Logout",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "No",
+          onPress: () => console.log("Logout cancelled"),
+          style: "cancel"
+        },
+        {
+          text: "Yes",
+          onPress: async () => {
+            setUser(null);
+            setIsLogged(false);
+            await AsyncStorage.removeItem("userInfo");
+            await AsyncStorage.removeItem("role");
+            router.replace("/");
+          },
+          style: "destructive"
+        }
+      ]
+    );
   };
 
+
   return (
-    <LinearGradient
-      colors={["#4c669f", "#3b5998", "#192f6a"]}
-      style={styles.gradientContainer}
+    <View>
+      <AppHeader title="Profile"/>
+    <View
+      // colors={["#4c669f", "#3b5998", "#192f6a"]}
+      // style={styles.gradientContainer}
     >
       <ScrollView contentContainerStyle={styles.tabContent}>
         <Text style={styles.greeting}>Hello, {user?.name || "Guest"}!</Text>
@@ -341,7 +380,8 @@ function ProfileTab() {
           <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>
       </ScrollView>
-    </LinearGradient>
+    </View>
+    </View>
   );
 }
 
@@ -387,6 +427,7 @@ export default function Home() {
         options={{
           tabBarLabel: "Home",
           headerTitle: "Home",
+          headerShown:false,
         }}
       />
       <Tab.Screen
@@ -395,6 +436,7 @@ export default function Home() {
         options={{
           tabBarLabel: "Profile",
           headerTitle: "Profile",
+          headerShown:false,
         }}
       />
     </Tab.Navigator>
@@ -402,9 +444,9 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  // container: {
+  //   flex: 1,
+  // },
   gradientContainer: {
     flex: 1,
     padding: 50,
@@ -414,11 +456,14 @@ const styles = StyleSheet.create({
     paddingTop: 30,
   },
   buttonContainer: {
-    flexDirection: "column",
+    flexDirection: "row",
     marginBottom: 20,
+    width:"100%",
+    gap:10,
   },
   bigButton: {
-    backgroundColor: "rgba(66, 135, 245, 0.8)",
+    width:"50%",
+    backgroundColor: "#4287f5",
     padding: 30,
     borderRadius: 15,
     marginBottom: 15,
@@ -426,6 +471,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   bigButtonText: {
+    textAlign:"center",
     color: "#fff",
     fontSize: 20,
     fontWeight: "bold",
@@ -438,7 +484,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#fff",
+    color: "#4287f5",
   },
   queueItem: {
     backgroundColor: "rgba(240, 230, 255, 0.8)",
@@ -463,18 +509,18 @@ const styles = StyleSheet.create({
   emptyQueueText: {
     fontSize: 16,
     fontStyle: "italic",
-    color: "#fff",
+    color: "#000000",
   },
   greeting: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    color: "#fff",
+    color: "#000000",
   },
   profileText: {
     fontSize: 16,
     marginBottom: 10,
-    color: "#fff",
+    color: "#000000",
   },
   logoutButton: {
     backgroundColor: "#ff6b6b",

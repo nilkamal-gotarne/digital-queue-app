@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "retail-queue-manager",
+    "name": "Digital Queue",
     "slug": "retail-queue-manager",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -45,7 +45,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "c8e7d965-5c67-4c63-a117-bba8202c464e"
+        "projectId": "a68070e3-1933-4a77-8b15-2c0d44a6a1d5"
       }
     }
   }

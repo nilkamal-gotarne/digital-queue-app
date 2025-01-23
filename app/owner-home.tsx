@@ -11,42 +11,19 @@ import {
 import { useGlobalContext } from "../context/GlobalContext";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  updateDoc,
-  doc,
-  onSnapshot,
-  writeBatch,
-  orderBy,
-  getDoc,
-  increment,
-  serverTimestamp,
-  runTransaction,
-  limit,
-} from "firebase/firestore";
+import {collection,query,where,getDocs,updateDoc,doc,onSnapshot,writeBatch,orderBy,getDoc,increment,serverTimestamp,runTransaction,limit,}from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import moment from "moment";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AppHeader from "@/components/Header";
+import { blue } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 
 const Tab = createBottomTabNavigator();
 
-interface QueueMember {
-  id: string;
-  userId: string;
-  userName: string;
-  status: string;
-  endTime: any;
-  position: number;
-  waitingTime: number;
-  startTime: any;
-  lotId: string;
-}
+interface QueueMember { id: string; userId: string;userName: string;status: string;endTime: any;position: number;waitingTime: number;startTime: any;lotId: string;}
 
 function HomeTab() {
   const { user }: any = useGlobalContext();
@@ -320,7 +297,6 @@ function HomeTab() {
           ...doc.data(),
           id: doc.id,
         }));
-        // Find the current lot index
         const currentLotIndex = lotData.findIndex(
           (lot) => lot.id === currentLotId
         );
@@ -333,8 +309,6 @@ function HomeTab() {
 
         const currentLot = lotData[currentLotIndex];
         const nextLot = lotData[currentLotIndex + 1];
-
-        // Get all active queues for the next lot
         const queuesRef = collection(db, "queues");
         const queueQuery = query(
           queuesRef,
@@ -504,7 +478,7 @@ function HomeTab() {
             }
             disabled={isUpdating}
           >
-            <Text style={styles.updateButtonText}>Transfer to Next Lot</Text>
+            <Text style={styles.updateButtonText}>Assign lot</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.updateButton, { backgroundColor: "#2196F3" }]}
@@ -553,25 +527,25 @@ function HomeTab() {
   };
 
   return (
-    <LinearGradient
-      colors={["#4c669f", "#3b5998", "#192f6a"]}
-      style={styles.container}
-    >
-      <Text style={styles.greeting}>
-        Welcome, {user?.name || "Queue Owner"}!
-      </Text>
+    <View>
+      <AppHeader title={`Welcome, ${user?.name || "Queue Owner"}`} />
+  <View>
+    <Text style={styles.greeting}></Text>
 
-      {isLoading ? (
-        <ActivityIndicator size="large" color="#ffffff" />
-      ) : (
-        <FlatList
-          data={queueMembers}
-          renderItem={renderQueueMember}
-          keyExtractor={(item) => item.id}
-          style={styles.list}
-        />
-      )}
-    </LinearGradient>
+    {isLoading ? (
+      <ActivityIndicator size="large" color="#ffffff" />
+    ) : queueMembers.length === 0 ? (
+      <Text style={styles.emptyMessage}>The queue is empty right now</Text> // Display message if queue is empty
+    ) : (
+      <FlatList
+        data={queueMembers}
+        renderItem={renderQueueMember}
+        keyExtractor={(item) => item.id}
+        style={styles.list}
+      />
+    )}
+  </View>
+    </View>
   );
 }
 
@@ -579,25 +553,42 @@ function ProfileTab() {
   const { user, setUser, setIsLogged }: any = useGlobalContext();
 
   const handleLogout = async () => {
-    setUser(null);
-    setIsLogged(false);
-    await AsyncStorage.removeItem("userInfo");
-    await AsyncStorage.removeItem("role");
-    router.replace("/");
+    Alert.alert(
+      "Confirm Logout",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "No",
+          onPress: () => console.log("Logout cancelled"),
+          style: "cancel"
+        },
+        {
+          text: "Yes",
+          onPress: async () => {
+            setUser(null);
+            setIsLogged(false);
+            await AsyncStorage.removeItem("userInfo");
+            await AsyncStorage.removeItem("role");
+            router.replace("/");
+          },
+          style: "destructive"
+        }
+      ]
+    );
   };
-
+  
   return (
-    <LinearGradient
-      colors={["#4c669f", "#3b5998", "#192f6a"]}
-      style={styles.container}
-    >
-      <Text style={styles.greeting}>Hello, {user?.name || "Queue Owner"}!</Text>
-      <Text style={styles.profileText}>Email: {user?.email}</Text>
-      <Text style={styles.profileText}>Phone: {user?.phoneNumber}</Text>
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
-    </LinearGradient>
+    <View>
+      <AppHeader title={`Welcome, ${user?.name || "Queue Owner"}`} />
+      <View>
+        <Text style={styles.greeting}></Text>
+        <Text style={styles.profileText}>Email: {user?.email}</Text>
+        <Text style={styles.profileText}>Phone: {user?.phone}</Text>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
@@ -643,6 +634,7 @@ export default function OwnerHome() {
         options={{
           tabBarLabel: "Home",
           headerTitle: "Home",
+          headerShown: false,
         }}
       />
       <Tab.Screen
@@ -651,6 +643,7 @@ export default function OwnerHome() {
         options={{
           tabBarLabel: "Profile",
           headerTitle: "Profile",
+          headerShown: false,
         }}
       />
     </Tab.Navigator>
@@ -700,7 +693,7 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   updateButton: {
-    padding: 10,
+    padding: 12,
     borderRadius: 5,
   },
   updateButtonText: {
@@ -708,19 +701,31 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   logoutButton: {
-    backgroundColor: "red",
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: "#ff6b6b",
+    padding: 15,
+    borderRadius: 10,
     marginTop: 20,
+    marginLeft: 25,
+    width: 300,
+    alignItems: "center",
+    justifyContent: "center",
   },
   logoutButtonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+    textAlign: "center",
   },
   profileText: {
+    padding: 10,
     fontSize: 16,
     marginBottom: 10,
-    color: "#fff",
+    color: "#000000",
+  },
+  emptyMessage: {
+    textAlign: "center",
+    color: "#000000",
+    marginTop: 20,
+    fontSize: 16,
   },
 });

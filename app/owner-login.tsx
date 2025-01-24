@@ -71,7 +71,7 @@ export default function QueueOwnerLogin() {
 
   return (
     <LinearGradient
-      colors={['#4c669f', '#3b5998', '#192f6a']}
+      colors={["#eaeaea", "#eaeaea", "#eaeaea"]}
       style={styles.container}
     >
       <Image
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 30,
-    color: '#ffffff',
+    color: '#000',
     textAlign: 'center',
   },
   input: {
@@ -135,6 +135,8 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     paddingHorizontal: 15,
     fontSize: 16,
+    borderWidth: 1, // Border thickness
+    borderColor: "#ccc", // Light gray border color
   },
   button: {
     backgroundColor: "#4287f5",
@@ -147,13 +149,13 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "bold", 
   },
   bottomLinks: {
     marginTop: 20,
   },
   link: {
-    color: '#ffffff',
+    color: "#5A5A5A",
     fontSize: 16,
     textDecorationLine: 'underline',
   },

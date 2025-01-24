@@ -257,7 +257,7 @@ function HomeTab() {
 
   return (
     <LinearGradient
-      colors={["#4c669f", "#3b5998", "#192f6a"]}
+      colors={["#eaeaea", "#eaeaea", "#eaeaea"]}
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.tabContent}>
@@ -339,7 +339,7 @@ function ProfileTab() {
 
   return (
     <LinearGradient
-      colors={["#4c669f", "#3b5998", "#192f6a"]}
+      colors={["#eaeaea", "#eaeaea", "#eaeaea"]}
       style={styles.gradientContainer}
     >
       <ScrollView contentContainerStyle={styles.tabContent}>
@@ -373,7 +373,7 @@ export default function Home() {
           height: 70,
           paddingBottom: 10,
           paddingTop: 10,
-          backgroundColor: "#4c669f",
+          backgroundColor: "#3477F3",
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -382,7 +382,9 @@ export default function Home() {
         tabBarActiveTintColor: "#fff",
         tabBarInactiveTintColor: "#b0b0b0",
         headerStyle: {
-          backgroundColor: "#4c669f",
+          backgroundColor: "#3477F3",
+          borderBottomLeftRadius: 15, // Rounded bottom-left corner
+          borderBottomRightRadius: 15, // Rounded bottom-right corner
         },
         headerTintColor: "#fff",
         headerTitleStyle: {
@@ -447,7 +449,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#fff",
+    color: "#000",
   },
   queueItem: {
     backgroundColor: "rgba(240, 230, 255, 0.8)",
@@ -478,12 +480,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    color: "#fff",
+    color: "#000",
   },
   profileText: {
     fontSize: 16,
     marginBottom: 10,
-    color: "#fff",
+    color: "#000",
   },
   logoutButton: {
     backgroundColor: "#ff6b6b",

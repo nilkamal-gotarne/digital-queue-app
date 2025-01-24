@@ -13,7 +13,7 @@ import { router } from "expo-router";
 import { db } from "@/firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment";
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Index() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -32,9 +32,9 @@ export default function Index() {
             const now = moment();
             const end = moment(queueInfo.endTime);
             const duration = moment.duration(end.diff(now));
-            const hours = duration.hours().toString().padStart(2, '0');
-            const minutes = duration.minutes().toString().padStart(2, '0');
-            const seconds = duration.seconds().toString().padStart(2, '0');
+            const hours = duration.hours().toString().padStart(2, "0");
+            const minutes = duration.minutes().toString().padStart(2, "0");
+            const seconds = duration.seconds().toString().padStart(2, "0");
             setCountdown(`${hours}:${minutes}:${seconds}`);
           }, 1000);
           return () => clearInterval(interval);
@@ -98,13 +98,10 @@ export default function Index() {
 
   return (
     <LinearGradient
-      colors={['#4c669f', '#3b5998', '#192f6a']}
+      colors={["#eaeaea", "#eaeaea", "#eaeaea"]}
       style={styles.container}
     >
-      <Image
-        source={require('../assets/waiting.png')}
-        style={styles.icon}
-      />
+      <Image source={require("../assets/waiting.png")} style={styles.icon} />
       <Text style={styles.title}>Welcome to Digital Queue</Text>
       <TextInput
         style={styles.input}
@@ -113,7 +110,7 @@ export default function Index() {
         value={phoneNumber}
         onChangeText={setPhoneNumber}
         keyboardType="phone-pad"
-        maxLength={10} 
+        maxLength={10}
       />
       <TextInput
         style={styles.input}
@@ -128,7 +125,9 @@ export default function Index() {
       </TouchableOpacity>
       {queueInfo && (
         <View style={styles.queueInfo}>
-          <Text style={styles.queueInfoText}>Position: {queueInfo.position}</Text>
+          <Text style={styles.queueInfoText}>
+            Position: {queueInfo.position}
+          </Text>
           <Text style={styles.queueInfoText}>Countdown: {countdown}</Text>
         </View>
       )}
@@ -160,17 +159,19 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 30,
-    color: '#ffffff',
-    textAlign: 'center',
+    color: "#000",
+    textAlign: "center",
   },
   input: {
     width: "100%",
     height: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderRadius: 10,
     marginBottom: 15,
     paddingHorizontal: 15,
     fontSize: 16,
+    borderWidth: 1, // Border thickness
+    borderColor: "#ccc", // Light gray border color
   },
   button: {
     backgroundColor: "#4287f5",
@@ -188,12 +189,12 @@ const styles = StyleSheet.create({
   queueInfo: {
     marginTop: 20,
     alignItems: "center",
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     padding: 15,
     borderRadius: 10,
   },
   queueInfoText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 16,
     marginBottom: 5,
   },
@@ -204,7 +205,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   link: {
-    color: "#FFD700",
+    color: "#5A5A5A",
     textDecorationLine: "underline",
     fontSize: 16,
   },

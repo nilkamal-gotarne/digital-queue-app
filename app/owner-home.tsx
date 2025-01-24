@@ -491,8 +491,54 @@ function HomeTab() {
           </Text>
         </View>
         <View style={styles.actionButtonContainer}>
+          {/* Grouped Buttons */}
+          <View style={styles.groupedButtons}>
+            <TouchableOpacity
+              style={[styles.updateButton, { backgroundColor: "#2196F3" }]}
+              onPress={() => {
+                item.status === "waiting"
+                  ? updateMemberStatus(
+                      item.id,
+                      item.status === "waiting" ? "processing" : "completed"
+                    )
+                  : handleLeaveQueue(
+                      item.id,
+                      item.queueId,
+                      item.position,
+                      "completed"
+                    );
+              }}
+            >
+              <Text style={styles.updateButtonText}>
+                {item.status === "waiting" ? "Processing" : "Complete"}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.updateButton, { backgroundColor: "#90CAF9" }]}
+              onPress={() =>
+                handleLeaveQueue(
+                  item.id,
+                  item.queueId,
+                  item.position,
+                  "not_available"
+                )
+              }
+              disabled={isUpdating}
+            >
+              <Text style={styles.updateButtonText}>Not Available</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.updateButton, { backgroundColor: "#F44336" }]}
+              onPress={() => updateMemberStatus(item.id, "rejected")}
+              disabled={isUpdating}
+            >
+              <Text style={styles.updateButtonText}>Rejected</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Separate Button */}
           <TouchableOpacity
-            style={[styles.updateButton, { backgroundColor: "#4CAF50" }]}
+            style={[styles.updateButton2, { backgroundColor: "#4CAF50" }]}
             onPress={() =>
               transferToNextLot(
                 item.lotId,
@@ -506,47 +552,6 @@ function HomeTab() {
           >
             <Text style={styles.updateButtonText}>Transfer to Next Lot</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.updateButton, { backgroundColor: "#2196F3" }]}
-            onPress={() => {
-              item.status === "waiting"
-                ? updateMemberStatus(
-                    item.id,
-                    item.status === "waiting" ? "processing" : "completed"
-                  )
-                : handleLeaveQueue(
-                    item.id,
-                    item.queueId,
-                    item.position,
-                    "completed"
-                  );
-            }}
-          >
-            <Text style={styles.updateButtonText}>
-              {item.status === "waiting" ? "Processing" : "Complete"}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.updateButton, { backgroundColor: "#FFC107" }]}
-            onPress={() =>
-              handleLeaveQueue(
-                item.id,
-                item.queueId,
-                item.position,
-                "not_available"
-              )
-            }
-            disabled={isUpdating}
-          >
-            <Text style={styles.updateButtonText}>Not Available</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.updateButton, { backgroundColor: "#F44336" }]}
-            onPress={() => updateMemberStatus(item.id, "rejected")}
-            disabled={isUpdating}
-          >
-            <Text style={styles.updateButtonText}>Reject</Text>
-          </TouchableOpacity>
         </View>
       </View>
     );
@@ -554,7 +559,7 @@ function HomeTab() {
 
   return (
     <LinearGradient
-      colors={["#4c669f", "#3b5998", "#192f6a"]}
+      colors={["#eaeaea", "#eaeaea", "#eaeaea"]}
       style={styles.container}
     >
       <Text style={styles.greeting}>
@@ -588,7 +593,7 @@ function ProfileTab() {
 
   return (
     <LinearGradient
-      colors={["#4c669f", "#3b5998", "#192f6a"]}
+      colors={["#eaeaea", "#eaeaea", "#eaeaea"]}
       style={styles.container}
     >
       <Text style={styles.greeting}>Hello, {user?.name || "Queue Owner"}!</Text>
@@ -620,7 +625,7 @@ export default function OwnerHome() {
           height: 70,
           paddingBottom: 10,
           paddingTop: 10,
-          backgroundColor: "#4c669f",
+          backgroundColor: "#3477F3",
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -629,7 +634,9 @@ export default function OwnerHome() {
         tabBarActiveTintColor: "#fff",
         tabBarInactiveTintColor: "#b0b0b0",
         headerStyle: {
-          backgroundColor: "#4c669f",
+          backgroundColor: "#3477F3",
+          borderBottomLeftRadius: 15, // Rounded bottom-left corner
+          borderBottomRightRadius: 15, // Rounded bottom-right corner
         },
         headerTintColor: "#fff",
         headerTitleStyle: {
@@ -666,13 +673,17 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    color: "#fff",
+    color: "#000",
   },
   actionButtonContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  groupedButtons: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    marginTop: 10,
-    gap: 10,
+    justifyContent: "space-around",
+    width: "100%", // Adjust based on your layout
   },
   averageWaitTime: {
     fontSize: 18,
@@ -692,20 +703,29 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(152, 251, 152, 0.8)",
   },
   waitingMember: {
-    backgroundColor: "rgba(135, 206, 250, 0.8)",
+    backgroundColor: "#fff",
   },
   memberText: {
     fontSize: 16,
     marginBottom: 5,
     color: "#000",
+    fontWeight: "bold",
   },
   updateButton: {
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 100,
+    marginBottom: 15,
+  },
+  updateButton2: {
+    width: "100%",
+    padding: 10,
+    borderRadius: 100,
+    alignItems: "center",
   },
   updateButtonText: {
-    color: "white",
-    fontSize: 12,
+    color: "#000",
+    fontSize: 14,
+    fontWeight: "bold",
   },
   logoutButton: {
     backgroundColor: "red",
@@ -721,6 +741,6 @@ const styles = StyleSheet.create({
   profileText: {
     fontSize: 16,
     marginBottom: 10,
-    color: "#fff",
+    color: "#000",
   },
 });

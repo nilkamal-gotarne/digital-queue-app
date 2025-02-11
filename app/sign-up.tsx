@@ -339,10 +339,10 @@ const styles = StyleSheet.create({
     textAlign: "right",
     color: "red",
   },
-  buttonContainer: {
-    flex: 1,  
-    justifyContent: "flex-end",  // Pushes the button to the bottom
-    alignItems: "center",
-    paddingBottom: 20,  // Centers the button horizontally
+   buttonContainer: {
+    position: "absolute",  // Keeps the button fixed at the bottom
+    bottom: 20,            // Adjusts the position from the bottom
+    width: "100%",         // Ensures full width
+    alignItems: "center",  // Centers the button horizontally
   },
 });

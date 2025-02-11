@@ -87,6 +87,11 @@ export default function Index() {
       }
 
       userData.id = querySnapshot.docs[0].id;
+      if(!userData.isVerified){
+        alert("Please verify your phone number to proceed.");
+        setIsLoading(false);
+        return;
+      }
       setUser(userData);
       setIsLogged(true);
       await AsyncStorage.setItem("userInfo", JSON.stringify(userData));

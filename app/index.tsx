@@ -22,88 +22,87 @@ export default function Index() {
   const [queueInfo, setQueueInfo] = useState<any>(null);
   const [countdown, setCountdown] = useState("");
 
-  useEffect(() => {
-    const fetchQueueInfo = async () => {
-      if (queueInfo) {
-        if (queueInfo.position == 1) {
-          setCountdown("You're first!");
-        } else {
-          const interval = setInterval(() => {
-            const now = moment();
-            const end = moment(queueInfo.endTime);
-            const duration = moment.duration(end.diff(now));
-            const hours = duration.hours().toString().padStart(2, "0");
-            const minutes = duration.minutes().toString().padStart(2, "0");
-            const seconds = duration.seconds().toString().padStart(2, "0");
-            setCountdown(`${hours}:${minutes}:${seconds}`);
-          }, 1000);
-          return () => clearInterval(interval);
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const fetchQueueInfo = async () => {
+  //     if (queueInfo) {
+  //       if (queueInfo.position == 1) {
+  //         setCountdown("You're first!");
+  //       } else {
+  //         const interval = setInterval(() => {
+  //           const now = moment();
+  //           const end = moment(queueInfo.endTime);
+  //           const duration = moment.duration(end.diff(now));
+  //           const hours = duration.hours().toString().padStart(2, "0");
+  //           const minutes = duration.minutes().toString().padStart(2, "0");
+  //           const seconds = duration.seconds().toString().padStart(2, "0");
+  //           setCountdown(`${hours}:${minutes}:${seconds}`);
+  //         }, 1000);
+  //         return () => clearInterval(interval);
+  //       }
+  //     }
+  //   };
 
-    fetchQueueInfo();
-  }, [queueInfo]);
+  //   fetchQueueInfo();
+  // }, [queueInfo]);
 
-  const handleLogin = async () => {
-    if (!phoneNumber || !password) {
-      if (!phoneNumber && !password) {
-        alert("Please enter your phone number and password.");
-      } else if (!phoneNumber) {
-        alert("Please enter a valid phone number.");
-      } else {
-        alert("Please enter a valid password.");
-      }
-      return;
-    }
-    try {
-      const usersRef = collection(db, "users");
-      const q = query(usersRef, where("phoneNumber", "==", phoneNumber));
-      const querySnapshot = await getDocs(q);
+  // const handleLogin = async () => {
+  //   if (!phoneNumber || !password) {
+  //     if (!phoneNumber && !password) {
+  //       alert("Please enter your phone number and password.");
+  //     } else if (!phoneNumber) {
+  //       alert("Please enter a valid phone number.");
+  //     } else {
+  //       alert("Please enter a valid password.");
+  //     }
+  //     return;
+  //   }
+  //   try {
+  //     const usersRef = collection(db, "users");
+  //     const q = query(usersRef, where("phoneNumber", "==", phoneNumber));
+  //     const querySnapshot = await getDocs(q);
 
-      if (querySnapshot.empty) {
-        alert("User not found. Please sign up.");
-        return;
-      }
+  //     if (querySnapshot.empty) {
+  //       alert("User not found. Please sign up.");
+  //       return;
+  //     }
 
-      const userData = querySnapshot.docs[0].data();
-      if (userData.password !== password) {
-        alert("Incorrect password. Please try again.");
-        return;
-      }
+  //     const userData = querySnapshot.docs[0].data();
+  //     if (userData.password !== password) {
+  //       alert("Incorrect password. Please try again.");
+  //       return;
+  //     }
 
-      userData.id = querySnapshot.docs[0].id;
-      setUser(userData);
-      setIsLogged(true);
-      await AsyncStorage.setItem("userInfo", JSON.stringify(userData));
-      await AsyncStorage.setItem("role", userData.role || "user");
+  //     userData.id = querySnapshot.docs[0].id;
+  //     setUser(userData);
+  //     setIsLogged(true);
+  //     await AsyncStorage.setItem("userInfo", JSON.stringify(userData));
+  //     await AsyncStorage.setItem("role", userData.role || "user");
 
-      const queueMembersRef = collection(db, "queue_members");
-      const queueQuery = query(
-        queueMembersRef,
-        where("userId", "==", userData.id),
-        where("status", "in", ["waiting", "processing"])
-      );
-      const queueSnapshot = await getDocs(queueQuery);
-      if (!queueSnapshot.empty) {
-        setQueueInfo(queueSnapshot.docs[0].data());
-      }
+  //     const queueMembersRef = collection(db, "queue_members");
+  //     const queueQuery = query(
+  //       queueMembersRef,
+  //       where("userId", "==", userData.id),
+  //       where("status", "in", ["waiting", "processing"])
+  //     );
+  //     const queueSnapshot = await getDocs(queueQuery);
+  //     if (!queueSnapshot.empty) {
+  //       setQueueInfo(queueSnapshot.docs[0].data());
+  //     }
 
-      router.push("/home");
-    } catch (err) {
-      console.error(err);
-      alert("Error during login.");
-    }
-  };
+  //     router.push("/home");
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Error during login.");
+  //   }
+  // };
 
   return (
-    <LinearGradient
-      colors={["#eaeaea", "#eaeaea", "#eaeaea"]}
-      style={styles.container}
-    >
-      <Image source={require("../assets/waiting.png")} style={styles.icon} />
-      <Text style={styles.title}>Welcome to Digital Queue</Text>
-      <TextInput
+    <View style={styles.container}>
+      <View style={styles.logoContainer}>
+        <Image source={require("../assets/logo.png")} style={styles.icon} />
+      </View>
+      {/* <Text style={styles.title}>Welcome to Digital Queue</Text> */}
+      {/* <TextInput
         style={styles.input}
         placeholder="Phone Number"
         placeholderTextColor="#a0a0a0"
@@ -130,30 +129,51 @@ export default function Index() {
           </Text>
           <Text style={styles.queueInfoText}>Countdown: {countdown}</Text>
         </View>
-      )}
+      )} */}
       <View style={styles.bottomLinks}>
-        <TouchableOpacity onPress={() => router.push("/owner-login")}>
-          <Text style={styles.link}>Queue Owner Login</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push("/sign-in")}
+        >
+          <Text style={styles.link}>Queue Member</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/sign-up")}>
-          <Text style={styles.link}>Sign Up</Text>
+        <View style={styles.dividerContainer}>
+          <View style={styles.line} />
+          <Text style={styles.orText}>Or</Text>
+          <View style={styles.line} />
+        </View>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push("/owner-login")}
+        >
+          <Text style={styles.link}>Queue Owner</Text>
         </TouchableOpacity>
+        {/* New Button */}
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
+    justifyContent: "space-between", // Space between logo and buttons
+    alignItems: "center", // Center horizontally
+    backgroundColor: "#fff", // Light background color
+    padding: 16,
+  },
+  logoContainer: {
+    flex: 1,
+    justifyContent: "center", // Center vertically
+    alignItems: "center", // Center horizontally
   },
   icon: {
-    width: 150,
+    width: 150,  // Adjust size as needed
     height: 150,
-    marginBottom: 30,
+    borderRadius: 100,  // Rounded corners
+    borderWidth: 2,  // Optional border
+    borderColor: "#ddd",  // Light gray border
+    resizeMode: "contain",  // Ensures the image fits well
   },
   title: {
     fontSize: 28,
@@ -174,12 +194,14 @@ const styles = StyleSheet.create({
     borderColor: "#ccc", // Light gray border color
   },
   button: {
-    backgroundColor: "#4287f5",
+    backgroundColor: "#007AFF",
     padding: 15,
     borderRadius: 25,
     width: "100%",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 0,
+    // paddingVertical: 10,
+    // paddingHorizontal: 10,
   },
   buttonText: {
     color: "white",
@@ -199,14 +221,32 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   bottomLinks: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     width: "100%",
-    marginTop: 30,
+    alignItems: "center",
+    marginTop: 30, // Background color for the container
   },
   link: {
-    color: "#5A5A5A",
-    textDecorationLine: "underline",
+    color: "#ffff",
     fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  dividerContainer: {
+    flexDirection: "row", // Arrange items in a row
+    alignItems: "center", // Align items vertically
+    marginVertical: 10, // Space above and below the divider
+    width: "80%", // Match button width
+  },
+  line: {
+    flex: 1, // Take remaining space
+    height: 1, // Line thickness
+    backgroundColor: "#000", // Line color
+    fontWeight: "bold",
+  },
+  orText: {
+    marginHorizontal: 8, // Space around "or"
+    fontSize: 16,
+    color: "#000", // Text color
+    fontWeight: "bold",
   },
 });

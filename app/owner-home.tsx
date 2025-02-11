@@ -559,7 +559,7 @@ function HomeTab() {
 
   return (
     <LinearGradient
-      colors={["#eaeaea", "#eaeaea", "#eaeaea"]}
+      colors={["#ffff", "#ffff", "#ffff"]}
       style={styles.container}
     >
       <Text style={styles.greeting}>
@@ -593,7 +593,7 @@ function ProfileTab() {
 
   return (
     <LinearGradient
-      colors={["#eaeaea", "#eaeaea", "#eaeaea"]}
+      colors={["#ffff", "#ffff", "#ffff"]}
       style={styles.container}
     >
       <Text style={styles.greeting}>Hello, {user?.name || "Queue Owner"}!</Text>
@@ -634,7 +634,7 @@ export default function OwnerHome() {
         tabBarActiveTintColor: "#fff",
         tabBarInactiveTintColor: "#b0b0b0",
         headerStyle: {
-          backgroundColor: "#3477F3",
+          backgroundColor: "#007AFF",
           borderBottomLeftRadius: 15, // Rounded bottom-left corner
           borderBottomRightRadius: 15, // Rounded bottom-right corner
         },

@@ -126,11 +126,10 @@ export default function PastQueues() {
 
   return (
     <LinearGradient
-      colors={["#eaeaea", "#eaeaea", "#eaeaea"]}
+      colors={["#ffff", "#ffff", "#ffff"]}
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
-        <Text style={styles.title}>Past Queues</Text>
         {pastQueues.length > 0 ? (
           <FlatList
             data={pastQueues}
@@ -178,12 +177,12 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     color: "#333",
     textTransform: "capitalize",
-    fontWeight:"bold"
+    fontWeight: "bold",
   },
   emptyText: {
     fontSize: 18,
     textAlign: "center",
-    color: "#fff",
+    color: "#000",
   },
   modalContainer: {
     flex: 1,
@@ -208,7 +207,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: "#333",
     transform: "capitalize",
-    fontWeight:"bold"
+    fontWeight: "bold",
   },
   closeButton: {
     backgroundColor: "#3b5998",

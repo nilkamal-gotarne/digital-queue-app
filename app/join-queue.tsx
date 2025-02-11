@@ -503,7 +503,7 @@ export default function JoinQueue() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
   },
   cameraContainer: {
     flex: 1,
@@ -570,7 +570,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   scanAgainButton: {
-    backgroundColor: '#6c757d',
+    backgroundColor: '#4287f5',
     marginTop: 10,
   },
 });

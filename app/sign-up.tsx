@@ -23,6 +23,8 @@ import {
   query,
   where,
   getDocs,
+  updateDoc,
+  doc,
 } from "firebase/firestore";
 import OTPInput from "./otp";
 interface OTPInputProps {
@@ -45,6 +47,17 @@ export default function SignUp() {
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const [signOpt, setSignOtp] = useState(false);
   console.log("otp----", otp);
+  const isDisabled = !phoneNumber || !name || !email || !password || !password2;
+  console.log(phoneNumber, name, email, password, password2);
+
+  function generateOTP(length = 6) {
+    const digits = "0123456789";
+    let otp = "";
+    for (let i = 0; i < length; i++) {
+      otp += digits[Math.floor(Math.random() * digits.length)];
+    }
+    return otp;
+  }
 
   const handleSignUp = async () => {
     if (!phoneNumber || !name || !email || !password) {
@@ -99,39 +112,82 @@ export default function SignUp() {
 
       if (!phoneSnapshot.empty) {
         alert("A user with this phone number already exists");
+        console.log("A user with this phone number already exists");
         return;
       }
 
       if (!emailSnapshot.empty) {
+        console.log("A user with this email already exists");
         alert("A user with this email already exists");
         return;
       }
-
+      const otp = generateOTP(6);
+      const isVerified = false;
+      console.log(otp);
       const userRef = await addDoc(collection(db, "users"), {
         phoneNumber,
         name,
         email,
         password,
+        isVerified,
+        otp,
         role: "user",
       });
-
-      const newUser = {
-        id: userRef.id,
-        phoneNumber,
-        name,
-        email,
-        role: "user",
-      };
-
-      setUser(newUser);
-      setIsLogged(true);
-      await AsyncStorage.setItem("userInfo", JSON.stringify(newUser));
-      await AsyncStorage.setItem("role", "user");
-      alert("Sign up successful!");
-      router.replace("/home");
+      if (userRef) {
+        alert("Otp send successful!");
+        setSignOtp(true);
+      } else {
+        alert("Otp send failed!");
+      }
     } catch (error) {
       console.error("Error during sign up:", error);
       alert("Error during sign up. Please try again.");
+    }
+  };
+  const handleVerifyOtp = async () => {
+    try {
+      const userRef = collection(db, "users");
+      const findUserQuery = query(userRef, where("email", "==", email));
+      const data = await getDocs(findUserQuery);
+
+      if (data.empty) {
+        alert("User not found!");
+        return;
+      }
+
+      const userDoc = data.docs[0];
+      const userData = userDoc.data();
+
+      if (userData.otp === otp.join("")) {
+        const userDocRef = doc(db, "users", userDoc.id);
+
+        await updateDoc(userDocRef, {
+          isVerified: true,
+          otp: "",
+        });
+
+        const newUser = {
+          id: userDoc.id,
+          phoneNumber: userData.phoneNumber,
+          name: userData.name,
+          email: userData.email,
+          password: userData.password,
+          isVerified: true,
+          role: "user",
+        };
+
+        setUser(newUser);
+        setIsLogged(true);
+        await AsyncStorage.setItem("userInfo", JSON.stringify(newUser));
+        await AsyncStorage.setItem("role", "user");
+        alert("Sign up successful!");
+        router.replace("/home");
+      } else {
+        alert("Enter a valid OTP!");
+      }
+    } catch (error) {
+      console.error("Error during OTP verification:", error);
+      alert("Error during OTP verification. Please try again.");
     }
   };
 
@@ -145,119 +201,129 @@ export default function SignUp() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.formContainer}>
-          <>
-            <View>
-              <Text style={styles.label}>
-                Full Name <Text style={styles.asterisk}>*</Text>
-              </Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Name"
-                placeholderTextColor="#a0a0a0"
-                value={name}
-                onChangeText={setName}
-              />
-            </View>
-            <View>
-              <Text style={styles.label}>
-                Email<Text style={styles.asterisk}>*</Text>
-              </Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Email"
-                placeholderTextColor="#a0a0a0"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-            <View>
-              <Text style={styles.label}>
-                Mobile<Text style={styles.asterisk}>*</Text>
-              </Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Phone Number"
-                placeholderTextColor="#a0a0a0"
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-                keyboardType="phone-pad"
-              />
-            </View>
-            <View>
-              <Text style={styles.label}>
-                Password <Text style={styles.asterisk}>*</Text>
-              </Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                placeholderTextColor="#a0a0a0"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeIcon}
-              >
-                <Ionicons
-                  name={showPassword ? "eye" : "eye-off"}
-                  size={20}
-                  color="gray"
+          {signOpt ? null : (
+            <>
+              <View>
+                <Text style={styles.label}>
+                  Full Name <Text style={styles.asterisk}>*</Text>
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Name"
+                  placeholderTextColor="#a0a0a0"
+                  value={name}
+                  onChangeText={setName}
                 />
-              </TouchableOpacity>
-            </View>
-            <View>
-              <Text style={styles.label}>
-                Confirm Password<Text style={styles.asterisk}> * </Text>
-              </Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                placeholderTextColor="#a0a0a0"
-                value={password2}
-                onChangeText={setPassword2}
-                secureTextEntry={!showPassword2}
-              />
-              <TouchableOpacity
-                onPress={() => setShowPassword2(!showPassword2)}
-                style={styles.eyeIcon}
-              >
-                <Ionicons
-                  name={showPassword2 ? "eye" : "eye-off"}
-                  size={20}
-                  color="gray"
+              </View>
+              <View>
+                <Text style={styles.label}>
+                  Email<Text style={styles.asterisk}>*</Text>
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email"
+                  placeholderTextColor="#a0a0a0"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address" // Ensures correct keyboard on mobile
+                  autoCapitalize="none" // Prevents automatic capitalization
+                  autoComplete="email" // Suggests email autofill
+                  textContentType="emailAddress" // Improves autofill on iOS
                 />
-              </TouchableOpacity>
-            </View>
-
-            {/* Sign Up Button */}
-
-            {/* OTP Input should appear below form when signOpt is true */}
-            {signOpt && (
-              <>
-                <View style={styles.otpContainer}>
-                  <OTPInput
-                    handleSignUp={handleSignUp}
-                    otp={otp}
-                    setOtp={setOtp}
+              </View>
+              <View>
+                <Text style={styles.label}>
+                  Mobile<Text style={styles.asterisk}>*</Text>
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Phone Number"
+                  placeholderTextColor="#a0a0a0"
+                  value={phoneNumber}
+                  onChangeText={setPhoneNumber}
+                  keyboardType="phone-pad"
+                  maxLength={10}
+                />
+              </View>
+              <View>
+                <Text style={styles.label}>
+                  Password <Text style={styles.asterisk}>*</Text>
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  placeholderTextColor="#a0a0a0"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.eyeIcon}
+                >
+                  <Ionicons
+                    name={showPassword ? "eye" : "eye-off"}
+                    size={20}
+                    color="gray"
                   />
-                </View>
-                <TouchableOpacity onPress={() => alert("OTP Resent!")}>
-                  <Text style={styles.resend}>Resend OTP</Text>
                 </TouchableOpacity>
-              </>
-            )}
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => setSignOtp(true)}
-              >
-                <Text style={styles.buttonText}>Sign Up</Text>
+              </View>
+              <View>
+                <Text style={styles.label}>
+                  Confirm Password<Text style={styles.asterisk}> * </Text>
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  placeholderTextColor="#a0a0a0"
+                  value={password2}
+                  onChangeText={setPassword2}
+                  secureTextEntry={!showPassword2}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword2(!showPassword2)}
+                  style={styles.eyeIcon}
+                >
+                  <Ionicons
+                    name={showPassword2 ? "eye" : "eye-off"}
+                    size={20}
+                    color="gray"
+                  />
+                </TouchableOpacity>
+              </View>
+              <View>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => handleSignUp()}
+                  disabled={isDisabled}
+                >
+                  <Text style={styles.buttonText}>Send OTP</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+          {signOpt && (
+            <>
+              <View style={styles.otpContainer}>
+                <OTPInput
+                  handleSignUp={handleSignUp}
+                  otp={otp}
+                  setOtp={setOtp}
+                />
+              </View>
+              <TouchableOpacity onPress={() => alert("OTP Resent!")}>
+                <Text style={styles.resend}>Resend OTP</Text>
               </TouchableOpacity>
-            </View>
-          </>
+              <View>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => handleVerifyOtp()}
+                >
+                  <Text style={styles.buttonText}>Submit</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
         </View>
       </ScrollView>
     </LinearGradient>
@@ -339,10 +405,10 @@ const styles = StyleSheet.create({
     textAlign: "right",
     color: "red",
   },
-   buttonContainer: {
-    position: "absolute",  // Keeps the button fixed at the bottom
-    bottom: 20,            // Adjusts the position from the bottom
-    width: "100%",         // Ensures full width
-    alignItems: "center",  // Centers the button horizontally
+  buttonContainer: {
+    position: "absolute", // Keeps the button fixed at the bottom
+    bottom: 20, // Adjusts the position from the bottom
+    width: "100%", // Ensures full width
+    alignItems: "center", // Centers the button horizontally
   },
 });

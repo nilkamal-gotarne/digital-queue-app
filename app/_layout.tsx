@@ -82,6 +82,26 @@ export default function RootLayout() {
             headerBackground: () => <View style={styles.headerBackground} />,
           }}
         />
+        <Stack.Screen
+          name="queue-home-page"
+          options={{
+            title: "Home",
+            headerShown: true,
+            headerTintColor: "#ffffff",
+            headerTitleStyle: { fontWeight: "bold" },
+            headerBackground: () => <View style={styles.headerBackground} />,
+          }}
+        />
+        <Stack.Screen
+          name="complete-members"
+          options={{
+            title: "Completed Members",
+            headerShown: true,
+            headerTintColor: "#ffffff",
+            headerTitleStyle: { fontWeight: "bold" },
+            headerBackground: () => <View style={styles.headerBackground} />,
+          }}
+        />
       </Stack>
     </GlobalProvider>
   );

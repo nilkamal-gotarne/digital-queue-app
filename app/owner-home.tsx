@@ -623,6 +623,16 @@ function HomeTab() {
           style={styles.list}
         />
       )}
+      <TouchableOpacity onPress={() => router.push("/queue-home-page")}>
+        <Text style={{ color: "#3C73DC", fontSize: 16, fontWeight: "bold" }}>
+          View All
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push("/complete-members")}>
+        <Text style={{ color: "#3C73DC", fontSize: 16, fontWeight: "bold" }}>
+          View All2
+        </Text>
+      </TouchableOpacity>
     </LinearGradient>
   );
 }

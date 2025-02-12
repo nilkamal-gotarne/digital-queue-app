@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  BackHandler,
+  TextInput,
+  Modal,
 } from "react-native";
 import { useGlobalContext } from "../context/GlobalContext";
 import { router } from "expo-router";
@@ -25,7 +26,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
+import { Entypo, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -37,6 +38,8 @@ function HomeTab() {
   const { user }: any = useGlobalContext();
   const [joinedQueues, setJoinedQueues] = useState<any[]>([]);
   const [currentTime, setCurrentTime] = useState(moment());
+
+  
 
   useEffect(() => {
     let unsubscribe: () => void;
@@ -104,11 +107,18 @@ function HomeTab() {
   const getRemainingTime = (endTime: any) => {
     const end = moment(endTime.toDate());
     const duration = moment.duration(end.diff(currentTime));
+
+    if (duration.asSeconds() <= 0) {
+      return "Time Up";
+    }
+
     const hours = Math.floor(duration.asHours());
     const minutes = Math.floor(duration.asMinutes()) % 60;
     const seconds = Math.floor(duration.asSeconds()) % 60;
+
     return `${hours}h ${minutes}m ${seconds}s`;
   };
+
   const handleLeaveQueue = async (
     queueMemberId: string,
     queueId: string,
@@ -129,20 +139,20 @@ function HomeTab() {
         queueMembersRef,
         where("queueId", "==", queueId),
         where("position", ">=", position),
-        where("status", "in", ["waiting", "processing","temporary_leave"]),
+        where("status", "in", ["waiting", "processing", "temporary_leave"]),
         orderBy("position", "desc")
       );
       const membersAfterSnapshot = await getDocs(membersAfterQuery);
 
       let previousEndTime = null;
-      
+
       // Update positions and end times for members after the leaving member
       for (let i = membersAfterSnapshot.docs.length - 1; i >= 0; i--) {
         const doc = membersAfterSnapshot.docs[i];
         const memberRef = doc.ref;
         const memberData = doc.data();
         const newPosition = memberData.position - 1;
-        
+
         let newEndTime;
         if (previousEndTime) {
           newEndTime = previousEndTime;
@@ -262,11 +272,9 @@ function HomeTab() {
   };
 
   return (
-    <View>
-      <AppHeader title="Home"/>
-    <View
-      // colors={["#4c669f", "#3b5998", "#192f6a"]}
-      // style={styles.container}
+    <LinearGradient
+      colors={["#ffff", "#ffff", "#ffff"]}
+      style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.tabContent}>
         <View style={styles.buttonContainer}>
@@ -274,15 +282,25 @@ function HomeTab() {
             style={styles.bigButton}
             onPress={() => router.push("/join-queue")}
           >
-            <Ionicons name="qr-code-outline" size={48} color="#fff" />
-            <Text style={styles.bigButtonText}>Scan QR</Text>
+            <View style={[styles.card, { backgroundColor: "#fcf1d3" }]}>
+              <View style={styles.iconCircle}>
+                <MaterialCommunityIcons
+                  name="line-scan"
+                  size={40}
+                  color="#ffc937"
+                />
+              </View>
+              <Text style={styles.bigButtonText}>Scan QR</Text>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.bigButton}
+            style={styles.bigButton2}
             onPress={() => router.push("/part-joins")}
           >
-            <Ionicons name="time-outline" size={48} color="#fff" />
-            <Text style={styles.bigButtonText}>Past Queues</Text>
+            <View style={[styles.iconCircle, { backgroundColor: "#e1777f" }]}>
+              <Entypo name="cross" size={40} color="white" />
+            </View>
+            <Text style={styles.bigButtonText}>Past Joined Queues</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.joinedQueuesSection}>
@@ -331,6 +349,12 @@ function HomeTab() {
             </Text>
           )}
         </View>
+        <TouchableOpacity
+          style={styles.temporaryLeaveButton}
+          onPress={() => router.push("/token-page")}
+        >
+          <Text style={styles.leaveButtonText}>Temporary Leave</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
     </View>
@@ -338,6 +362,14 @@ function HomeTab() {
 }
 function ProfileTab() {
   const { user, setUser, setIsLogged }: any = useGlobalContext();
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    setName(user?.name || "");
+    setEmail(user?.email || "");
+  }, [user]);
 
   const handleLogout = async () => {
     Alert.alert(
@@ -364,28 +396,213 @@ function ProfileTab() {
     );
   };
 
+  const handleUpdate = async () => {
+    if (!name.trim() || !email.trim()) {
+      Alert.alert("Error", "Name and Email cannot be empty.");
+      return;
+    }
+
+    const updatedUser = { ...user, name, email };
+    setUser(updatedUser);
+    await AsyncStorage.setItem("userInfo", JSON.stringify(updatedUser));
+    setModalVisible(false);
+    Alert.alert("Success", "Profile updated successfully!");
+  };
 
   return (
-    <View>
-      <AppHeader title="Profile"/>
-    <View
-      // colors={["#4c669f", "#3b5998", "#192f6a"]}
-      // style={styles.gradientContainer}
-    >
-      <ScrollView contentContainerStyle={styles.tabContent}>
-        <Text style={styles.greeting}>Hello, {user?.name || "Guest"}!</Text>
-        <Text style={styles.profileText}>Email: {user?.email}</Text>
-        <Text style={styles.profileText}>Phone: {user?.phoneNumber}</Text>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.buttonText}>Logout</Text>
-        </TouchableOpacity>
+    <LinearGradient colors={["#fff", "#fff"]} style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={{ padding: 20 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            borderBottomWidth: 1,
+            borderColor: "#ccc",
+            paddingBottom: 10,
+            marginBottom: 15,
+          }}
+        >
+          <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+            {user?.name || "Full Name"}
+          </Text>
+          <Text style={{ fontSize: 12, color: "gray" }}>Full Name</Text>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            borderBottomWidth: 1,
+            borderColor: "#ccc",
+            paddingBottom: 10,
+            marginBottom: 15,
+          }}
+        >
+          <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+            {user?.email || "Email Address"}
+          </Text>
+          <Text style={{ fontSize: 12, color: "gray" }}>Email Address</Text>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            borderBottomWidth: 1,
+            borderColor: "#ccc",
+            paddingBottom: 10,
+            marginBottom: 15,
+          }}
+        >
+          <TextInput
+            style={{ fontSize: 16, paddingVertical: 5, fontWeight: "bold" }}
+            placeholder="Mobile Number"
+            keyboardType="numeric"
+            value={user?.phoneNumber || ""}
+          />
+          <Text style={{ fontSize: 12, color: "gray", marginTop: 2 }}>
+            Mobile Number
+          </Text>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginTop: 10,
+          }}
+        >
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#3477F3",
+              padding: 12,
+              borderRadius: 5,
+              alignItems: "center",
+              flex: 1,
+              marginRight: 5,
+              marginTop: 10,
+            }}
+            onPress={() => setModalVisible(true)}
+          >
+            <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
+              Update
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#E53935",
+              padding: 12,
+              borderRadius: 5,
+              alignItems: "center",
+              marginTop: 10,
+              marginLeft: 5,
+              flex: 1,
+            }}
+            onPress={handleLogout}
+          >
+            <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
+              LogOut
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
-    </View>
-    </View>
+      <Modal visible={modalVisible} animationType="slide" transparent>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.5)",
+          }}
+        >
+          <View
+            style={{
+              width: "80%",
+              backgroundColor: "#fff",
+              padding: 20,
+              borderRadius: 10,
+            }}
+          >
+            <Text
+              style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}
+            >
+              Update Profile
+            </Text>
+
+            <TextInput
+              style={{
+                borderWidth: 1,
+                borderColor: "#ccc",
+                borderRadius: 5,
+                padding: 10,
+                marginBottom: 10,
+              }}
+              placeholder="Enter Name"
+              value={name}
+              onChangeText={setName}
+            />
+
+            <TextInput
+              style={{
+                borderWidth: 1,
+                borderColor: "#ccc",
+                borderRadius: 5,
+                padding: 10,
+                marginBottom: 10,
+              }}
+              placeholder="Enter Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+            />
+
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#4CAF50",
+                  padding: 10,
+                  borderRadius: 5,
+                  flex: 1,
+                  alignItems: "center",
+                  marginRight: 5,
+                }}
+                onPress={handleUpdate}
+              >
+                <Text
+                  style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}
+                >
+                  Save
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#E53935",
+                  padding: 10,
+                  borderRadius: 5,
+                  flex: 1,
+                  alignItems: "center",
+                  marginLeft: 5,
+                }}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text
+                  style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}
+                >
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </LinearGradient>
   );
 }
 
 export default function Home() {
+  const { user }: any = useGlobalContext();
+  console.log("user-------ddmddm",user);
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -404,7 +621,7 @@ export default function Home() {
           height: 70,
           paddingBottom: 10,
           paddingTop: 10,
-          backgroundColor: "#4c669f",
+          backgroundColor: "#007AFF",
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -413,7 +630,9 @@ export default function Home() {
         tabBarActiveTintColor: "#fff",
         tabBarInactiveTintColor: "#b0b0b0",
         headerStyle: {
-          backgroundColor: "#4c669f",
+          backgroundColor: "#007AFF",
+          borderBottomLeftRadius: 15, // Rounded bottom-left corner
+          borderBottomRightRadius: 15, // Rounded bottom-right corner
         },
         headerTintColor: "#fff",
         headerTitleStyle: {
@@ -426,8 +645,8 @@ export default function Home() {
         component={HomeTab}
         options={{
           tabBarLabel: "Home",
-          headerTitle: "Home",
-          headerShown:false,
+          // headerTitle: user?.name || "Home",
+          headerTitle:`Hi ${user?.name || "Home"}`,
         }}
       />
       <Tab.Screen
@@ -452,30 +671,69 @@ const styles = StyleSheet.create({
     padding: 50,
   },
   tabContent: {
-    padding: 20,
+    padding: 10,
     paddingTop: 30,
   },
   buttonContainer: {
+    display: "flex",
     flexDirection: "row",
-    marginBottom: 20,
-    width:"100%",
-    gap:10,
+    justifyContent: "space-between",
+    gap: 14,
   },
   bigButton: {
-    width:"50%",
-    backgroundColor: "#4287f5",
-    padding: 30,
-    borderRadius: 15,
-    marginBottom: 15,
+    backgroundColor: "#FCF1D3",
+    width: 160,
+    height: 160,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  bigButton2: {
+    backgroundColor: "#FDD6D9",
+    width: 160,
+    height: 160,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  card: {
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+    gap: 10,
+    padding: 10,
+    borderRadius: 20,
+  },
+  Circle: {
+    padding: 10,
+    backgroundColor: "#E07680",
+    borderRadius: 50,
+  },
+  Circle2: {
+    padding: 10,
+    backgroundColor: "#fff",
+    borderRadius: 50,
+  },
+  iconCircle: {
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 40,
   },
   bigButtonText: {
-    textAlign:"center",
-    color: "#fff",
-    fontSize: 20,
+    color: "black",
+    textAlign: "center",
     fontWeight: "bold",
-    marginTop: 10,
+    fontSize: 15,
   },
   joinedQueuesSection: {
     marginTop: 20,
@@ -484,7 +742,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#4287f5",
+    color: "#000",
   },
   queueItem: {
     backgroundColor: "rgba(240, 230, 255, 0.8)",
@@ -509,18 +767,18 @@ const styles = StyleSheet.create({
   emptyQueueText: {
     fontSize: 16,
     fontStyle: "italic",
-    color: "#000000",
+    color: "#000",
   },
   greeting: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    color: "#000000",
+    color: "#000",
   },
   profileText: {
     fontSize: 16,
     marginBottom: 10,
-    color: "#000000",
+    color: "#000",
   },
   logoutButton: {
     backgroundColor: "#ff6b6b",

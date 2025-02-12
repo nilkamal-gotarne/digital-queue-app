@@ -38,12 +38,16 @@
         {
           "cameraPermission": "Allow Retail Queue Manager to access your camera."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
+      "router": {
+        "origin": false
+      },
       "eas": {
         "projectId": "a68070e3-1933-4a77-8b15-2c0d44a6a1d5"
       }

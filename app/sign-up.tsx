@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Text,
   View,
@@ -5,18 +6,34 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  KeyboardAvoidingView,
   ScrollView,
+  KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import React, { useState } from "react";
-import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import { LinearGradient } from "expo-linear-gradient";
 import { useGlobalContext } from "../context/GlobalContext";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { db } from "@/firebaseConfig";
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import AppHeader from "@/components/Header";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
+import OTPInput from "./otp";
+interface OTPInputProps {
+  handleSignUp: () => void;
+
+  otp: string[];
+
+  setOtp: React.Dispatch<React.SetStateAction<string[]>>;
+}
 
 export default function SignUp() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -25,6 +42,23 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const { setUser, setIsLogged } = useGlobalContext();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
+  const [password2, setPassword2] = useState("");
+  const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
+  const [signOpt, setSignOtp] = useState(false);
+  console.log("otp----", otp);
+  const isDisabled = !phoneNumber || !name || !email || !password || !password2;
+  console.log(phoneNumber, name, email, password, password2);
+
+  function generateOTP(length = 6) {
+    const digits = "0123456789";
+    let otp = "";
+    for (let i = 0; i < length; i++) {
+      otp += digits[Math.floor(Math.random() * digits.length)];
+    }
+    return otp;
+  }
 
   const handleSignUp = async () => {
     if (!name) {
@@ -37,9 +71,15 @@ export default function SignUp() {
       alert("Please enter a valid name.");
       return;
     }
-  
-    if (!email) {
-      alert("Please enter your email.");
+
+    // Data type validation
+    if (
+      typeof phoneNumber !== "string" ||
+      typeof name !== "string" ||
+      typeof email !== "string" ||
+      typeof password !== "string"
+    ) {
+      alert("Invalid input types");
       return;
     }
   
@@ -75,7 +115,10 @@ export default function SignUp() {
   
     try {
       const usersRef = collection(db, "users");
-      const phoneQuery = query(usersRef, where("phoneNumber", "==", phoneNumber));
+      const phoneQuery = query(
+        usersRef,
+        where("phoneNumber", "==", phoneNumber)
+      );
       const emailQuery = query(usersRef, where("email", "==", email));
   
       const [phoneSnapshot, emailSnapshot] = await Promise.all([
@@ -84,172 +127,308 @@ export default function SignUp() {
       ]);
   
       if (!phoneSnapshot.empty) {
-        alert("A user with this phone number already exists.");
+        alert("A user with this phone number already exists");
+        console.log("A user with this phone number already exists");
         return;
       }
   
       if (!emailSnapshot.empty) {
-        alert("A user with this email already exists.");
+        console.log("A user with this email already exists");
+        alert("A user with this email already exists");
         return;
       }
-  
+      const otp = generateOTP(6);
+      const isVerified = false;
+      console.log(otp);
       const userRef = await addDoc(collection(db, "users"), {
         phoneNumber,
         name,
         email,
         password,
+        isVerified,
+        otp,
         role: "user",
       });
-  
-      const newUser = {
-        id: userRef.id,
-        phoneNumber,
-        name,
-        email,
-        role: "user",
-      };
-  
-      setUser(newUser);
-      setIsLogged(true);
-      await AsyncStorage.setItem("userInfo", JSON.stringify(newUser));
-      await AsyncStorage.setItem("role", "user");
-      alert("Sign up successful!");
-      router.replace("/home");
+      if (userRef) {
+        alert("Otp send successful!");
+        setSignOtp(true);
+      } else {
+        alert("Otp send failed!");
+      }
     } catch (error) {
       console.error("Error during sign up:", error);
       alert("Error during sign up. Please try again.");
+    }
+  };
+  const handleVerifyOtp = async () => {
+    try {
+      const userRef = collection(db, "users");
+      const findUserQuery = query(userRef, where("email", "==", email));
+      const data = await getDocs(findUserQuery);
+
+      if (data.empty) {
+        alert("User not found!");
+        return;
+      }
+
+      const userDoc = data.docs[0];
+      const userData = userDoc.data();
+
+      if (userData.otp === otp.join("")) {
+        const userDocRef = doc(db, "users", userDoc.id);
+
+        await updateDoc(userDocRef, {
+          isVerified: true,
+          otp: "",
+        });
+
+        const newUser = {
+          id: userDoc.id,
+          phoneNumber: userData.phoneNumber,
+          name: userData.name,
+          email: userData.email,
+          password: userData.password,
+          isVerified: true,
+          role: "user",
+        };
+
+        setUser(newUser);
+        setIsLogged(true);
+        await AsyncStorage.setItem("userInfo", JSON.stringify(newUser));
+        await AsyncStorage.setItem("role", "user");
+        alert("Sign up successful!");
+        router.replace("/home");
+      } else {
+        alert("Enter a valid OTP!");
+      }
+    } catch (error) {
+      console.error("Error during OTP verification:", error);
+      alert("Error during OTP verification. Please try again.");
     }
   };
   
   
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
+    <LinearGradient
+      colors={["#ffff", "#ffff", "#ffff"]}
+      style={styles.container}
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <AppHeader title="Sign Up" />
-        <View style={styles.container}>
-          <Text style={styles.label}>Name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Name"
-            placeholderTextColor="#a0a0a0"
-            value={name}
-            onChangeText={setName}
-          />
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor="#a0a0a0"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          <Text style={styles.label}>Phone Number</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Phone Number"
-            placeholderTextColor="#a0a0a0"
-            value={phoneNumber}
-            onChangeText={setPhoneNumber}
-            keyboardType="phone-pad"
-          />
-          <Text style={styles.label}>Password</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor="#a0a0a0"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!isPasswordVisible}
-            />
-            <TouchableOpacity
-              style={styles.toggleButton}
-              onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-            >
-              <Ionicons
-                name={isPasswordVisible ? "eye" : "eye-off"}
-                size={24}
-                color="#a0a0a0"
-              />
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-            <Text style={styles.buttonText}>Sign Up</Text>
-          </TouchableOpacity>
-          <View style={styles.bottomLinks}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Text style={styles.link}>Back to Login</Text>
-            </TouchableOpacity>
-          </View>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.formContainer}>
+          {signOpt ? null : (
+            <>
+              <View>
+                <Text style={styles.label}>
+                  Full Name <Text style={styles.asterisk}>*</Text>
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Name"
+                  placeholderTextColor="#a0a0a0"
+                  value={name}
+                  onChangeText={setName}
+                />
+              </View>
+              <View>
+                <Text style={styles.label}>
+                  Email<Text style={styles.asterisk}>*</Text>
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email"
+                  placeholderTextColor="#a0a0a0"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address" // Ensures correct keyboard on mobile
+                  autoCapitalize="none" // Prevents automatic capitalization
+                  autoComplete="email" // Suggests email autofill
+                  textContentType="emailAddress" // Improves autofill on iOS
+                />
+              </View>
+              <View>
+                <Text style={styles.label}>
+                  Mobile<Text style={styles.asterisk}>*</Text>
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Phone Number"
+                  placeholderTextColor="#a0a0a0"
+                  value={phoneNumber}
+                  onChangeText={setPhoneNumber}
+                  keyboardType="phone-pad"
+                  maxLength={10}
+                />
+              </View>
+              <View>
+                <Text style={styles.label}>
+                  Password <Text style={styles.asterisk}>*</Text>
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  placeholderTextColor="#a0a0a0"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                  style={styles.eyeIcon}
+                >
+                  <Ionicons
+                    name={showPassword ? "eye" : "eye-off"}
+                    size={20}
+                    color="gray"
+                  />
+                </TouchableOpacity>
+              </View>
+              <View>
+                <Text style={styles.label}>
+                  Confirm Password<Text style={styles.asterisk}> * </Text>
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  placeholderTextColor="#a0a0a0"
+                  value={password2}
+                  onChangeText={setPassword2}
+                  secureTextEntry={!showPassword2}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword2(!showPassword2)}
+                  style={styles.eyeIcon}
+                >
+                  <Ionicons
+                    name={showPassword2 ? "eye" : "eye-off"}
+                    size={20}
+                    color="gray"
+                  />
+                </TouchableOpacity>
+              </View>
+              <View>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => handleSignUp()}
+                  disabled={isDisabled}
+                >
+                  <Text style={styles.buttonText}>Send OTP</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+          {signOpt && (
+            <>
+              <View style={styles.otpContainer}>
+                <OTPInput
+                  handleSignUp={handleSignUp}
+                  otp={otp}
+                  setOtp={setOtp}
+                />
+              </View>
+              <TouchableOpacity onPress={() => alert("OTP Resent!")}>
+                <Text style={styles.resend}>Resend OTP</Text>
+              </TouchableOpacity>
+              <View>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => handleVerifyOtp()}
+                >
+                  <Text style={styles.buttonText}>Submit</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
     padding: 20,
+  },
+  formContainer: {
+    width: "100%",
   },
   input: {
     borderColor: "#333",
     borderWidth: 1,
     width: "100%",
     height: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderRadius: 10,
     marginBottom: 15,
     paddingHorizontal: 15,
     fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#ccc",
   },
-  passwordContainer: {
-    width: "100%",
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  toggleButton: {
-    position: 'absolute',
-    right: 10,   // Ensures toggle stays aligned to the right
-    padding: 10, // Consistent padding
-    alignItems: 'center',
-    top:3,
-    justifyContent: 'center',
+  eyeIcon: {
+    position: "absolute",
+    right: 10,
+    top: 40,
   },
   button: {
     backgroundColor: "#4287f5",
-    padding: 15,
-    borderRadius: 10,
+    padding: 12,
+    borderRadius: 25,
     width: "100%",
     alignItems: "center",
-    marginBottom: 15,
+    marginTop: 40,
   },
   buttonText: {
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
   },
-  bottomLinks: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    width: '100%',
-    marginTop: 20,
-  },
-  link: {
-    color: "#4287f5",
+  asterisk: {
+    color: "red", // Red color for asterisk (*)
     fontSize: 16,
-    textDecorationLine: 'underline',
   },
   label: {
-    color: 'black',
     fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
     marginBottom: 5,
-    fontWeight: '600',
+    alignSelf: "flex-start",
+  },
+  label2: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#333",
+  },
+  otpContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 5,
+  },
+  otpInput: {
+    width: 50,
+    height: 50,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    fontSize: 18,
+    backgroundColor: "#fff",
+  },
+  resend: {
+    textAlign: "right",
+    color: "red",
+  },
+  buttonContainer: {
+    position: "absolute", // Keeps the button fixed at the bottom
+    bottom: 20, // Adjusts the position from the bottom
+    width: "100%", // Ensures full width
+    alignItems: "center", // Centers the button horizontally
   },
 });

@@ -376,8 +376,8 @@ function ProfileTab() {
   };
 
   return (
-    <LinearGradient colors={["#ffffff", "#ffffff"]} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
+    <LinearGradient colors={["#ffffff", "#ffffff"]} style={{ flex: 1 ,flexDirection:"column",justifyContent:"space-between",padding:20}} >
+      <View>
         <View
           style={{
             alignItems: "center",
@@ -445,47 +445,48 @@ function ProfileTab() {
             Mobile Number
           </Text>
         </View>
-        <View
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginTop: 10,
+        }}
+      >
+        <TouchableOpacity
           style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
+            backgroundColor: "#3C73DC",
+            padding: 12,
+            borderRadius: 5,
+            alignItems: "center",
+            flex: 1,
+            marginRight: 5,
             marginTop: 10,
           }}
+          onPress={() => setModalVisible(true)}
         >
-          <TouchableOpacity
-            style={{
-              backgroundColor: "#3C73DC",
-              padding: 12,
-              borderRadius: 5,
-              alignItems: "center",
-              flex: 1,
-              marginRight: 5,
-              marginTop: 10,
-            }}
-            onPress={() => setModalVisible(true)}
-          >
-            <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
-              Update
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              backgroundColor: "#E53935",
-              padding: 12,
-              borderRadius: 5,
-              alignItems: "center",
-              marginTop: 10,
-              marginLeft: 5,
-              flex: 1,
-            }}
-            onPress={handleLogout}
-          >
-            <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
-              LogOut
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+          <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
+            Update
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            backgroundColor: "#3C73DC",
+            padding: 12,
+            borderRadius: 5,
+            alignItems: "center",
+            marginTop: 10,
+            marginLeft: 5,
+            flex: 1,
+          }}
+          onPress={handleLogout}
+        >
+          <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
+            LogOut
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View
           style={{
@@ -604,13 +605,13 @@ export default function Home() {
           height: 70,
           paddingBottom: 10,
           paddingTop: 10,
-          backgroundColor: "#3C73DC",
+          // backgroundColor: "#3C73DC",
         },
         tabBarLabelStyle: {
           fontSize: 12,
           marginTop: 5,
         },
-        tabBarActiveTintColor: "#fff",
+        tabBarActiveTintColor: "#3C73DC",
         tabBarInactiveTintColor: "#b0b0b0",
         headerStyle: {
           backgroundColor: "#3C73DC",

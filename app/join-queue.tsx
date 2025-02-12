@@ -621,7 +621,7 @@ export default function JoinQueue() {
       <View style={scanned ? styles.infoContainerScanned : styles.infoContainer}>
         <Text style={styles.title}>Scan QR Code to Join Queue</Text>
         {isLoading ? (
-          <ActivityIndicator size="large" color="#4287f5" />
+          <ActivityIndicator size="large" color="#3C73DC" />
         ) : (
           scanned && (
             <>
@@ -713,9 +713,9 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   button: {
-    backgroundColor: '#4287f5',
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: '#3C73DC',
+    padding: 12,
+    borderRadius:25 ,
     marginTop: 10,
     alignItems: 'center',
   },
@@ -725,7 +725,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   scanAgainButton: {
-    backgroundColor: '#4287f5',
+    backgroundColor: '#3C73DC',
     marginTop: 10,
   },
 });

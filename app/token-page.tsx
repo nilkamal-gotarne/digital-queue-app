@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   header: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#3C73DC",
     padding: 15,
     width: "100%",
     alignItems: "center",
@@ -617,7 +617,7 @@ const styles = StyleSheet.create({
   waitingTime: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#007AFF",
+    color: "#3C73DC",
   },
   exitText: {
     marginTop: 20,

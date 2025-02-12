@@ -31,7 +31,13 @@ import {
 import { db } from "@/firebaseConfig";
 import moment from "moment";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  Feather,
+  FontAwesome,
+  FontAwesome5,
+  Ionicons,
+} from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "react-native";
@@ -474,8 +480,47 @@ function HomeTab() {
 
   const renderQueueMember = ({ item }: { item: any }) => {
     return (
-      <View style={getQueueItemStyle(item.status)}>
-        <View>
+      <View style={[getQueueItemStyle(item.status), styles.cardContainer]}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              marginBottom: 20,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
+            <Image
+              source={require("../assets/images/profile.jpg")} // Change the path accordingly
+              style={{
+                width: 70,
+                height: 70,
+                borderRadius: 50,
+                borderWidth: 2,
+                borderColor: "#ccc",
+              }}
+            />
+            <Text style={styles.memberText}>Ticket No - B5002</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => console.log("Message Clicked")}
+            style={{
+              padding: 16,
+              borderRadius: 50,
+              backgroundColor: "#CAFFEF",
+              justifyContent: "center",
+            }}
+          >
+            <FontAwesome5 name="paper-plane" size={30} color="#14A979" solid />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.memberItem}>
           <Text style={styles.memberText}>
             {item.userName} -{" "}
             <Text style={{ textTransform: "capitalize" }}>{item.status}</Text>
@@ -496,7 +541,7 @@ function HomeTab() {
           {/* Grouped Buttons */}
           <View style={styles.groupedButtons}>
             <TouchableOpacity
-              style={[styles.updateButton, { backgroundColor: "#3C73DC" }]}
+              style={[styles.updateButton, { backgroundColor: "#C7DAFF" }]}
               onPress={() => {
                 item.status === "waiting"
                   ? updateMemberStatus(
@@ -516,7 +561,7 @@ function HomeTab() {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.updateButton, { backgroundColor: "#90CAF9" }]}
+              style={[styles.updateButton, { backgroundColor: "#C7DAFF" }]}
               onPress={() =>
                 handleLeaveQueue(
                   item.id,
@@ -530,17 +575,17 @@ function HomeTab() {
               <Text style={styles.updateButtonText}>Not Available</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.updateButton, { backgroundColor: "#F44336" }]}
+              style={[styles.updateButton, { backgroundColor: "#E1777F" }]}
               onPress={() => updateMemberStatus(item.id, "rejected")}
               disabled={isUpdating}
             >
-              <Text style={styles.updateButtonText}>Rejected</Text>
+              <Text style={styles.updateButtonText3}>Rejected</Text>
             </TouchableOpacity>
           </View>
 
           {/* Separate Button */}
           <TouchableOpacity
-            style={[styles.updateButton2, { backgroundColor: "#4CAF50" }]}
+            style={[styles.updateButton2, { backgroundColor: "#14A979" }]}
             onPress={() =>
               transferToNextLot(
                 item.lotId,
@@ -552,7 +597,7 @@ function HomeTab() {
             }
             disabled={isUpdating}
           >
-            <Text style={styles.updateButtonText}>Transfer to Next Lot</Text>
+            <Text style={styles.updateButtonText4}>Transfer to Next Lot</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -585,7 +630,6 @@ function HomeTab() {
 function ProfileTab() {
   const { user, setUser, setIsLogged }: any = useGlobalContext();
   console.log("User--------", user);
-  
 
   const handleLogout = async () => {
     setUser(null);
@@ -600,79 +644,83 @@ function ProfileTab() {
       colors={["#ffff", "#ffff", "#ffff"]}
       style={styles.container}
     >
-      <View
-        style={{
-          alignItems: "center",
-          marginBottom: 20,
-        }}
-      >
-        <Image
-          source={require("../assets/images/profile.jpg")} // Change the path accordingly
+      <View>
+        <View
           style={{
-            width: 100,
-            height: 100,
-            borderRadius: 50,
-            borderWidth: 2,
-            borderColor: "#ccc",
+            alignItems: "center",
+            marginBottom: 20,
           }}
-        />
-      </View>
-      {/* <Text style={styles.greeting}>Hello, {user?.name || "Queue Owner"}!</Text> */}
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          borderBottomWidth: 1,
-          borderColor: "#ccc",
-          paddingBottom: 10,
-          marginBottom: 15,
-        }}
-      >
-        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-          {user?.name || "Full Name"}
-        </Text>
-        <Text style={{ fontSize: 12, color: "gray" }}>Full Name</Text>
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          borderBottomWidth: 1,
-          borderColor: "#ccc",
-          paddingBottom: 10,
-          marginBottom: 15,
-        }}
-      >
-        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-          {user?.email || "Email Address"}
-        </Text>
-        <Text style={{ fontSize: 12, color: "gray" }}>Email Address</Text>
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          borderBottomWidth: 1,
-          borderColor: "#ccc",
-          paddingBottom: 10,
-          marginBottom: 15,
-        }}
-      >
-        <TextInput
-          style={{ fontSize: 16, paddingVertical: 5, fontWeight: "bold" }}
-          placeholder="Mobile Number"
-          keyboardType="numeric"
-          value={user?.phone || ""}
-        />
-        <Text style={{ fontSize: 12, color: "gray", marginTop: 2 }}>
-          Mobile Number
-        </Text>
+        >
+          <Image
+            source={require("../assets/images/profile.jpg")} // Change the path accordingly
+            style={{
+              width: 100,
+              height: 100,
+              borderRadius: 50,
+              borderWidth: 2,
+              borderColor: "#ccc",
+            }}
+          />
+        </View>
+        {/* <Text style={styles.greeting}>Hello, {user?.name || "Queue Owner"}!</Text> */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            borderBottomWidth: 1,
+            borderColor: "#ccc",
+            paddingBottom: 10,
+            marginBottom: 15,
+          }}
+        >
+          <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+            {user?.name || "Full Name"}
+          </Text>
+          <Text style={{ fontSize: 12, color: "gray" }}>Full Name</Text>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            borderBottomWidth: 1,
+            borderColor: "#ccc",
+            paddingBottom: 10,
+            marginBottom: 15,
+          }}
+        >
+          <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+            {user?.email || "Email Address"}
+          </Text>
+          <Text style={{ fontSize: 12, color: "gray" }}>Email Address</Text>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            borderBottomWidth: 1,
+            borderColor: "#ccc",
+            paddingBottom: 10,
+            marginBottom: 15,
+          }}
+        >
+          <TextInput
+            style={{ fontSize: 16, paddingVertical: 5, fontWeight: "bold" }}
+            placeholder="Mobile Number"
+            keyboardType="numeric"
+            value={user?.phone || ""}
+          />
+          <Text style={{ fontSize: 12, color: "gray", marginTop: 2 }}>
+            Mobile Number
+          </Text>
+        </View>
       </View>
       {/* <Text style={styles.profileText}>Email: {user?.email}</Text>
       <Text style={styles.profileText}>Phone: {user?.phoneNumber}</Text> */}
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
+      <View>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
     </LinearGradient>
   );
 }
@@ -696,16 +744,16 @@ export default function OwnerHome() {
           height: 70,
           paddingBottom: 10,
           paddingTop: 10,
-          backgroundColor: "#3477F3",
+          // backgroundColor: "#3C73DC",
         },
         tabBarLabelStyle: {
           fontSize: 12,
           marginTop: 5,
         },
-        tabBarActiveTintColor: "#fff",
+        tabBarActiveTintColor: "#3C73DC",
         tabBarInactiveTintColor: "#b0b0b0",
         headerStyle: {
-          backgroundColor: "#007AFF",
+          backgroundColor: "#3C73DC",
           borderBottomLeftRadius: 15, // Rounded bottom-left corner
           borderBottomRightRadius: 15, // Rounded bottom-right corner
         },
@@ -739,6 +787,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    flexDirection: "column",
+    justifyContent: "space-between",
+    
   },
   greeting: {
     fontSize: 24,
@@ -746,10 +797,23 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: "#000",
   },
+  cardContainer: {
+    backgroundColor: "#fff", // Card background
+    padding: 10, // Inner spacing
+    borderRadius: 12, // Rounded corners
+    borderWidth: 1, // Thin border
+    borderColor: "#ddd", // Light border color
+    shadowColor: "#000", // Shadow effect
+    shadowOffset: { width: 0, height: 2 }, // Shadow positioning
+    shadowOpacity: 0.2, // Light shadow
+    shadowRadius: 4, // Soft spread
+    elevation: 5, // Android shadow
+  },
   actionButtonContainer: {
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+    borderColor: "#000",
   },
   groupedButtons: {
     flexDirection: "row",
@@ -766,9 +830,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   memberItem: {
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 10,
+    padding: 1,
+    borderRadius: 12,
+    marginBottom: 12,
   },
   processingMember: {
     backgroundColor: "rgba(152, 251, 152, 0.8)",
@@ -784,31 +848,43 @@ const styles = StyleSheet.create({
   },
   updateButton: {
     padding: 10,
-    borderRadius: 100,
+    borderRadius: 25,
     marginBottom: 15,
+    paddingLeft: 12,
+    paddingRight: 12,
   },
   updateButton2: {
     width: "100%",
     padding: 10,
-    borderRadius: 100,
+    borderRadius: 25,
     alignItems: "center",
   },
   updateButtonText: {
-    color: "#000",
+    color: "#302A2C",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  updateButtonText3: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  updateButtonText4: {
+    color: "#fff",
     fontSize: 14,
     fontWeight: "bold",
   },
   logoutButton: {
-    backgroundColor: "#E53935",
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: "#3C73DC",
+    padding: 12,
+    borderRadius: 25,
     marginTop: 20,
   },
   logoutButtonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
-    textAlign: "center",  
+    textAlign: "center",
   },
   profileText: {
     fontSize: 16,

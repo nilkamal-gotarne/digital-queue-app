@@ -218,6 +218,40 @@ export default function SignUp() {
       alert("Error during OTP verification. Please try again.");
     }
   };
+  const handleReSendOtp = async () => {
+    try {
+      const userRef = collection(db, "users");
+      const findUserQuery = query(userRef, where("email", "==", email));
+      const data = await getDocs(findUserQuery);
+
+      if (data.empty) {
+        alert("User not found!");
+        return;
+      }
+
+      const userDoc = data.docs[0];
+      const userData = userDoc.data();
+      const otp = generateOTP(6);
+      console.log('your otp is',otp);
+      
+      const now = Date.now();
+      const tenMinutesLater = now + 10 * 60 * 1000; 
+
+      if (userData) {
+        const userDocRef = doc(db, "users", userDoc.id);
+        await updateDoc(userDocRef, {
+          ExpireTime: new Date(tenMinutesLater),
+          otp,
+        });
+        alert("Otp resend successful!");
+      } else {
+        alert("otp resend failed!");
+      }
+    } catch (error) {
+      console.error("Error during OTP resend:", error);
+      alert("Error during OTP resend. Please try again.");
+    }
+  };
 
   return (
     <LinearGradient
@@ -345,7 +379,7 @@ export default function SignUp() {
                   setOtp={setOtp}
                 />
               </View>
-              <TouchableOpacity onPress={() => alert("OTP Resent!")}>
+              <TouchableOpacity onPress={() => handleReSendOtp()}>
                 <Text style={styles.resend}>Resend OTP</Text>
               </TouchableOpacity>
               <View>

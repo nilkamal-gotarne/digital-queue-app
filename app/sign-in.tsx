@@ -181,11 +181,11 @@ export default function Index() {
           role: "user",
         };
 
-        setUser(userData);
+        setUser(newUser);
         setIsLogged(true);
         await AsyncStorage.setItem("userInfo", JSON.stringify(newUser));
         await AsyncStorage.setItem("role", newUser.role || "user");
-        console.log(userData.id);
+        console.log(newUser.id);
         const queueMembersRef = collection(db, "queue_members");
         const queueQuery = query(
           queueMembersRef,

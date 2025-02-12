@@ -7,6 +7,7 @@ import {
   FlatList,
   Alert,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
 import { useGlobalContext } from "../context/GlobalContext";
 import { router } from "expo-router";
@@ -33,6 +34,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Image } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
@@ -494,7 +496,7 @@ function HomeTab() {
           {/* Grouped Buttons */}
           <View style={styles.groupedButtons}>
             <TouchableOpacity
-              style={[styles.updateButton, { backgroundColor: "#2196F3" }]}
+              style={[styles.updateButton, { backgroundColor: "#3C73DC" }]}
               onPress={() => {
                 item.status === "waiting"
                   ? updateMemberStatus(
@@ -582,6 +584,8 @@ function HomeTab() {
 
 function ProfileTab() {
   const { user, setUser, setIsLogged }: any = useGlobalContext();
+  console.log("User--------", user);
+  
 
   const handleLogout = async () => {
     setUser(null);
@@ -596,9 +600,76 @@ function ProfileTab() {
       colors={["#ffff", "#ffff", "#ffff"]}
       style={styles.container}
     >
-      <Text style={styles.greeting}>Hello, {user?.name || "Queue Owner"}!</Text>
-      <Text style={styles.profileText}>Email: {user?.email}</Text>
-      <Text style={styles.profileText}>Phone: {user?.phoneNumber}</Text>
+      <View
+        style={{
+          alignItems: "center",
+          marginBottom: 20,
+        }}
+      >
+        <Image
+          source={require("../assets/images/profile.jpg")} // Change the path accordingly
+          style={{
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+            borderWidth: 2,
+            borderColor: "#ccc",
+          }}
+        />
+      </View>
+      {/* <Text style={styles.greeting}>Hello, {user?.name || "Queue Owner"}!</Text> */}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          borderBottomWidth: 1,
+          borderColor: "#ccc",
+          paddingBottom: 10,
+          marginBottom: 15,
+        }}
+      >
+        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+          {user?.name || "Full Name"}
+        </Text>
+        <Text style={{ fontSize: 12, color: "gray" }}>Full Name</Text>
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          borderBottomWidth: 1,
+          borderColor: "#ccc",
+          paddingBottom: 10,
+          marginBottom: 15,
+        }}
+      >
+        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+          {user?.email || "Email Address"}
+        </Text>
+        <Text style={{ fontSize: 12, color: "gray" }}>Email Address</Text>
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          borderBottomWidth: 1,
+          borderColor: "#ccc",
+          paddingBottom: 10,
+          marginBottom: 15,
+        }}
+      >
+        <TextInput
+          style={{ fontSize: 16, paddingVertical: 5, fontWeight: "bold" }}
+          placeholder="Mobile Number"
+          keyboardType="numeric"
+          value={user?.phone || ""}
+        />
+        <Text style={{ fontSize: 12, color: "gray", marginTop: 2 }}>
+          Mobile Number
+        </Text>
+      </View>
+      {/* <Text style={styles.profileText}>Email: {user?.email}</Text>
+      <Text style={styles.profileText}>Phone: {user?.phoneNumber}</Text> */}
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
@@ -728,7 +799,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   logoutButton: {
-    backgroundColor: "red",
+    backgroundColor: "#E53935",
     padding: 10,
     borderRadius: 5,
     marginTop: 20,
@@ -737,6 +808,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+    textAlign: "center",  
   },
   profileText: {
     fontSize: 16,

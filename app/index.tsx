@@ -194,8 +194,8 @@ const styles = StyleSheet.create({
     borderColor: "#ccc", // Light gray border color
   },
   button: {
-    backgroundColor: "#007AFF",
-    padding: 15,
+    backgroundColor: "#3C73DC",
+    padding: 12,
     borderRadius: 25,
     width: "100%",
     alignItems: "center",

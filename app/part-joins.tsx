@@ -126,7 +126,7 @@ export default function PastQueues() {
 
   return (
     <LinearGradient
-      colors={["#ffff", "#ffff", "#ffff"]}
+      colors={["#ffffff", "#ffffff", "#ffffff"]}
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   closeButton: {
-    backgroundColor: "#3b5998",
+    backgroundColor: "#3C73DC",
     padding: 10,
     borderRadius: 5,
     alignSelf: "flex-end",

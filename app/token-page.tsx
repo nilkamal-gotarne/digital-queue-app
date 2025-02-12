@@ -341,7 +341,7 @@ const TokenDetailsScreen = () => {
           </View>
           <View style={styles.timeContainer}>
             <Text style={styles.timeText}>Approx Waiting Time</Text>
-            <Text style={styles.timeValText}>0:2:0</Text>
+            <Text style={styles.timeValText}>10:30:45</Text>
           </View>
         </View>
       </View>

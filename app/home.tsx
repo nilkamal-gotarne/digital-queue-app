@@ -30,6 +30,7 @@ import { Entypo, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Image } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
@@ -37,8 +38,6 @@ function HomeTab() {
   const { user }: any = useGlobalContext();
   const [joinedQueues, setJoinedQueues] = useState<any[]>([]);
   const [currentTime, setCurrentTime] = useState(moment());
-
-  
 
   useEffect(() => {
     let unsubscribe: () => void;
@@ -268,7 +267,7 @@ function HomeTab() {
             style={styles.bigButton}
             onPress={() => router.push("/join-queue")}
           >
-            <View style={[styles.card, { backgroundColor: "#fcf1d3" }]}>
+            <View style={[styles.card, { backgroundColor: "#FCF1D3" }]}>
               <View style={styles.iconCircle}>
                 <MaterialCommunityIcons
                   name="line-scan"
@@ -377,8 +376,25 @@ function ProfileTab() {
   };
 
   return (
-    <LinearGradient colors={["#fff", "#fff"]} style={{ flex: 1 }}>
+    <LinearGradient colors={["#ffffff", "#ffffff"]} style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ padding: 20 }}>
+        <View
+          style={{
+            alignItems: "center",
+            marginBottom: 20,
+          }}
+        >
+          <Image
+            source={require("../assets/images/profile.jpg")} // Change the path accordingly
+            style={{
+              width: 100,
+              height: 100,
+              borderRadius: 50,
+              borderWidth: 2,
+              borderColor: "#ccc",
+            }}
+          />
+        </View>
         <View
           style={{
             flexDirection: "row",
@@ -438,7 +454,7 @@ function ProfileTab() {
         >
           <TouchableOpacity
             style={{
-              backgroundColor: "#3477F3",
+              backgroundColor: "#3C73DC",
               padding: 12,
               borderRadius: 5,
               alignItems: "center",
@@ -525,7 +541,7 @@ function ProfileTab() {
             >
               <TouchableOpacity
                 style={{
-                  backgroundColor: "#4CAF50",
+                  backgroundColor: "#3C73DC",
                   padding: 10,
                   borderRadius: 5,
                   flex: 1,
@@ -568,8 +584,8 @@ function ProfileTab() {
 
 export default function Home() {
   const { user }: any = useGlobalContext();
-  console.log("user-------ddmddm",user);
-  
+  console.log("user-------ddmddm", user);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -588,7 +604,7 @@ export default function Home() {
           height: 70,
           paddingBottom: 10,
           paddingTop: 10,
-          backgroundColor: "#007AFF",
+          backgroundColor: "#3C73DC",
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -597,7 +613,7 @@ export default function Home() {
         tabBarActiveTintColor: "#fff",
         tabBarInactiveTintColor: "#b0b0b0",
         headerStyle: {
-          backgroundColor: "#007AFF",
+          backgroundColor: "#3C73DC",
           borderBottomLeftRadius: 15, // Rounded bottom-left corner
           borderBottomRightRadius: 15, // Rounded bottom-right corner
         },
@@ -613,7 +629,7 @@ export default function Home() {
         options={{
           tabBarLabel: "Home",
           // headerTitle: user?.name || "Home",
-          headerTitle:`Hi ${user?.name || "Home"}`,
+          headerTitle: `Hi ${user?.name || "Home"}`,
         }}
       />
       <Tab.Screen
@@ -660,7 +676,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   bigButton2: {
-    backgroundColor: "#FDD6D9",
+    backgroundColor: "#FDD6DA",
     width: 160,
     height: 160,
     justifyContent: "center",

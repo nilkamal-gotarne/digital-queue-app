@@ -265,8 +265,8 @@ const styles = StyleSheet.create({
     borderColor: "#ccc", // Light gray border color
   },
   button: {
-    backgroundColor: "#4287f5",
-    padding: 15,
+    backgroundColor: "#3C73DC",
+    padding: 12,
     borderRadius: 25,
     width: "100%",
     alignItems: "center",
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     alignItems: "center", // Vertically center the text
   },
   link: {
-    color: "#4287f5",
+    color: "#3C73DC",
     textDecorationLine: "underline",
     fontSize: 16,
     fontWeight: "bold",

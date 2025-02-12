@@ -139,119 +139,7 @@ export default function QueueOwnerLogin() {
           <Text style={styles.link}>Sign Up</Text>
         </TouchableOpacity>
       </View> */}
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                // padding: 10,
-                marginTop: 26,
-              }}
-            >
-              <View style={{ flex: 1, height: 1, backgroundColor: "#000" }} />
-              <Text style={{ marginHorizontal: 10 }}>or</Text>
-              <View style={{ flex: 1, height: 1, backgroundColor: "#000" }} />
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 15,
-                justifyContent: "space-between",
-                marginTop: 20,
-                alignItems: "center",
-              }}
-            >
-              {/* Google Button */}
-              <TouchableOpacity
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  backgroundColor: "#fff",
-                  paddingVertical: 8,
-                  paddingHorizontal: 30,
-                  borderRadius: 50,
-                  elevation: 3, // Android shadow
-                  shadowColor: "#000", // iOS shadow
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 4,
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: 35,
-                    height: 35,
-                    marginRight: 12,
-                    marginLeft: -15,
-                    backgroundColor: "#eeee",
-                    borderRadius: 50,
-                  }}
-                >
-                  <Image
-                    source={{
-                      uri: "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png",
-                    }}
-                    style={{ width: 40, height: 40, padding: 12 }}
-                  />
-                </View>
-                <Text
-                  style={{ fontSize: 16, fontWeight: "bold", color: "#333" }}
-                >
-                  Google
-                </Text>
-              </TouchableOpacity>
-
-              {/* Facebook Button */}
-              <TouchableOpacity
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  backgroundColor: "#fff",
-                  paddingVertical: 8,
-                  paddingHorizontal: 30,
-                  borderRadius: 50,
-                  elevation: 3,
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 4,
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: 35,
-                    height: 35,
-                    marginRight: 12,
-                    marginLeft: -15,
-                    backgroundColor: "#eeee",
-                    borderRadius: 50,
-                  }}
-                >
-                  <Image
-                    source={{
-                      uri: "https://cdn.creazilla.com/icons/7911211/facebook-icon-lg.png",
-                    }}
-                    style={{
-                      width: 25,
-                      height: 25,
-                      padding: 12,
-
-                      // Adjust padding if needed
-                    }}
-                  />
-                </View>
-                <Text
-                  style={{ fontSize: 16, fontWeight: "bold", color: "#333" }}
-                >
-                  Facebook
-                </Text>
-              </TouchableOpacity>
-            </View>
+            
           </View>
           {/* <View style={styles.bottomLinks}>
         <TouchableOpacity onPress={() => router.back()}>
@@ -306,8 +194,8 @@ const styles = StyleSheet.create({
     borderColor: "#ccc", // Light gray border color
   },
   button: {
-    backgroundColor: "#4287f5",
-    padding: 15,
+    backgroundColor: "#3C73DC",
+    padding: 12,
     borderRadius: 25,
     width: "100%",
     alignItems: "center",
@@ -325,7 +213,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   link: {
-    color: "#4287f5",
+    color: "#3C73DC",
     fontSize: 16,
     textDecorationLine: "underline",
     fontWeight: "bold",

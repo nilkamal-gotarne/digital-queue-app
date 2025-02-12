@@ -58,14 +58,14 @@ export default function RootLayout() {
             title: "QR Scanner",
             headerShown: true,
             headerTintColor: "#ffffff",
-            headerStyle: { backgroundColor: "#007AFF" },
+            headerBackground: () => <View style={styles.headerBackground} />,
             headerTitleStyle: { fontWeight: "bold" },
           }}
         />
         <Stack.Screen
           name="part-joins"
           options={{
-            title: "Past Join",
+            title: "Past Queues",
             headerShown: true,
             headerTintColor: "#ffffff",
             headerTitleStyle: { fontWeight: "bold" },
@@ -89,7 +89,7 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   headerBackground: {
     flex: 1,
-    backgroundColor: "#007AFF",
+    backgroundColor: "#3C73DC",
     borderBottomLeftRadius: 15,
     borderBottomRightRadius: 15,
     overflow: "hidden",

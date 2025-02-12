@@ -1,6 +1,6 @@
-const senderEmail = "vertexautosolution@gmail.com";
+const senderEmail = "";
 const key =
-  "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";
+  "";
 
 const sendOtpEmail = async (
   to: string,

@@ -381,7 +381,7 @@ export default function SignUp() {
                   onPress={() => handleSignUp()}
                   disabled={isDisabled}
                 >
-                  <Text style={styles.buttonText}>Send OTP</Text>
+                  <Text style={styles.buttonText}>Sign Up</Text>
                 </TouchableOpacity>
               </View>
             </>
@@ -409,7 +409,7 @@ export default function SignUp() {
                   style={styles.button}
                   onPress={() => handleVerifyOtp()}
                 >
-                  <Text style={styles.buttonText}>Submit</Text>
+                  <Text style={styles.buttonText}>Proceed</Text>
                 </TouchableOpacity>
               </View>
             </>

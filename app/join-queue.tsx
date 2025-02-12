@@ -531,7 +531,7 @@ export default function JoinQueue() {
       // Add user to the shortest queue using a transaction
       await runTransaction(db, async (transaction) => {
         // Reference to the counter document for the queue
-        const counterRef = doc(db, "queue_counters", shortestQueue.id);
+        const counterRef = doc(db, "queue_members", shortestQueue.id);
   
         // Get the current counter value
         const counterDoc = await transaction.get(counterRef);

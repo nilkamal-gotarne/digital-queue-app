@@ -28,6 +28,7 @@ import {
 } from "firebase/firestore";
 import OTPInput from "./otp";
 import sendOtpEmail from "./send-otp";
+import moment from "moment";
 interface OTPInputProps {
   handleSignUp: () => void;
 
@@ -185,7 +186,7 @@ export default function SignUp() {
 
       if (userData.otp === otp.join("")) {
         const userDocRef = doc(db, "users", userDoc.id);
-        if (userData.ExpireTime >= Date.now()) {
+        if (moment().isAfter(moment(userData.ExpireTime))) {
           alert("Otp is expired");
           return;
         }

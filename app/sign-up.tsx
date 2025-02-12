@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Text,
   View,
@@ -47,6 +47,8 @@ export default function SignUp() {
   const [password2, setPassword2] = useState("");
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const [signOpt, setSignOtp] = useState(false);
+  const [timer, setTimer] = useState(120); // 2 minutes
+  const [isResendDisabled, setIsResendDisabled] = useState(false);
   console.log("otp----", otp);
   const isDisabled = !phoneNumber || !name || !email || !password || !password2;
   console.log(phoneNumber, name, email, password, password2);
@@ -125,9 +127,9 @@ export default function SignUp() {
       const otp = generateOTP(6);
       const isVerified = false;
       console.log(otp);
-      
+
       const now = Date.now();
-      const tenMinutesLater = now + 10 * 60 * 1000; 
+      const tenMinutesLater = now + 10 * 60 * 1000;
 
       const userRef = await addDoc(collection(db, "users"), {
         phoneNumber,
@@ -184,9 +186,9 @@ export default function SignUp() {
 
       if (userData.otp === otp.join("")) {
         const userDocRef = doc(db, "users", userDoc.id);
-        if(userData.ExpireTime >= Date.now()){
-          alert("Otp is expired");  
-          return
+        if (userData.ExpireTime >= Date.now()) {
+          alert("Otp is expired");
+          return;
         }
 
         await updateDoc(userDocRef, {
@@ -218,6 +220,54 @@ export default function SignUp() {
       alert("Error during OTP verification. Please try again.");
     }
   };
+  const handleReSendOtp = async () => {
+    try {
+      const userRef = collection(db, "users");
+      const findUserQuery = query(userRef, where("email", "==", email));
+      const data = await getDocs(findUserQuery);
+
+      if (data.empty) {
+        alert("User not found!");
+        return;
+      }
+
+      const userDoc = data.docs[0];
+      const userData = userDoc.data();
+      const otp = generateOTP(6);
+      console.log("your otp is", otp);
+
+      const now = Date.now();
+      const tenMinutesLater = now + 10 * 60 * 1000;
+
+      if (userData) {
+        const userDocRef = doc(db, "users", userDoc.id);
+        await updateDoc(userDocRef, {
+          ExpireTime: new Date(tenMinutesLater),
+          otp,
+        });
+        alert("Otp resend successful!");
+        setIsResendDisabled(true);
+        setTimer(120);
+      } else {
+        alert("otp resend failed!");
+      }
+    } catch (error) {
+      console.error("Error during OTP resend:", error);
+      alert("Error during OTP resend. Please try again.");
+    }
+  };
+  useEffect(() => {
+    let interval: any;
+    if (isResendDisabled && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (timer === 0) {
+      setIsResendDisabled(false);
+      setTimer(120); // Reset timer when completed
+    }
+    return () => clearInterval(interval);
+  }, [isResendDisabled, timer]);
 
   return (
     <LinearGradient
@@ -345,8 +395,14 @@ export default function SignUp() {
                   setOtp={setOtp}
                 />
               </View>
-              <TouchableOpacity onPress={() => alert("OTP Resent!")}>
-                <Text style={styles.resend}>Resend OTP</Text>
+              <TouchableOpacity
+                onPress={() => handleReSendOtp()}
+                disabled={isResendDisabled}
+              >
+                {/* <Text style={styles.resend}>Resend OTP</Text> */}
+                <Text style={styles.resend}>
+                  {isResendDisabled ? `Resend in ${timer}s` : "Resend OTP"}
+                </Text>
               </TouchableOpacity>
               <View>
                 <TouchableOpacity

@@ -454,7 +454,7 @@ export default function JoinQueue() {
       const sessionQuery = query(
         sessionsRef,
         where("adminId", "==", adminId),
-        where("createdAt", ">=", today.toDate())
+        where("createdAt", ">=", today.format())
       );
       const sessionSnapshot = await getDocs(sessionQuery);
   

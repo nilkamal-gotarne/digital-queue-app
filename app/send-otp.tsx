@@ -1,6 +1,5 @@
-const senderEmail = "vertexautosolution@gmail.com";
-const key =
-  "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";
+const senderEmail = "846361001@smtp-brevo.com";
+const key = "6fvmM9YtLUpJcz3C";
 
 const sendOtpEmail = async (
   to: string,
@@ -31,7 +30,7 @@ const sendOtpEmail = async (
       }),
     });
     const responseData = await response.json();
-    console.log("Email sent successfully:", responseData);
+    console.log("from email send", responseData);
     return responseData;
   } catch (error) {
     console.error("Error sending email:", error);

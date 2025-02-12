@@ -85,7 +85,7 @@ export default function RootLayout() {
         <Stack.Screen
           name="queue-home-page"
           options={{
-            title: "Home",
+            title: "Queue Members",
             headerShown: true,
             headerTintColor: "#ffffff",
             headerTitleStyle: { fontWeight: "bold" },

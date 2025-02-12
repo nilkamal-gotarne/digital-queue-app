@@ -41,6 +41,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "react-native";
+import { StatusBar } from "expo-status-bar";
 
 const Tab = createBottomTabNavigator();
 
@@ -605,35 +606,34 @@ function HomeTab() {
   };
 
   return (
-    <LinearGradient
-      colors={["#ffff", "#ffff", "#ffff"]}
-      style={styles.container}
-    >
-      <Text style={styles.greeting}>
-        Welcome, {user?.name || "Queue Owner"}!
-      </Text>
+    <SafeAreaView style={styles2.container}>
+      <StatusBar style="light" />
 
-      {isLoading ? (
-        <ActivityIndicator size="large" color="#ffffff" />
-      ) : (
-        <FlatList
-          data={queueMembers}
-          renderItem={renderQueueMember}
-          keyExtractor={(item) => item.id}
-          style={styles.list}
-        />
-      )}
-      <TouchableOpacity onPress={() => router.push("/queue-home-page")}>
-        <Text style={{ color: "#3C73DC", fontSize: 16, fontWeight: "bold" }}>
-          View All
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push("/complete-members")}>
-        <Text style={{ color: "#3C73DC", fontSize: 16, fontWeight: "bold" }}>
-          View All2
-        </Text>
-      </TouchableOpacity>
-    </LinearGradient>
+      {/* Cards Section */}
+      <View style={styles2.cardsContainer}>
+        {/* Total Queue Members */}
+        <TouchableOpacity  style={[styles2.card, styles2.yellowCard]}onPress={() => router.push("/queue-home-page")}>
+          <FontAwesome
+            name="users"
+            size={32}
+            color="#FBBF24"
+            style={styles2.icon}
+          />
+          <Text style={styles2.cardText}>Total Queue Members</Text>
+        </TouchableOpacity >
+
+        {/* Completed Queue Members */}
+        <TouchableOpacity style={[styles2.card, styles2.blueCard]}onPress={() => router.push("/complete-members")} >
+          <Feather
+            name="check-circle"
+            size={32}
+            color="#10B981"
+            style={styles2.icon}
+          />
+          <Text style={styles2.cardText}>Completed Queue Members</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -792,14 +792,52 @@ export default function OwnerHome() {
     </Tab.Navigator>
   );
 }
-
+const styles2 = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  icon: {
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 50,
+  },
+  cardsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 10,
+    paddingHorizontal: 2,
+  },
+  card: {
+    flex: 1,
+    padding: 8,
+    borderRadius: 20,
+    alignItems: "center",
+    marginHorizontal: 8,
+    justifyContent: "center",
+  },
+  yellowCard: {
+    backgroundColor: "#FCF1D3",
+    height: 150,
+  },
+  blueCard: {
+    backgroundColor: "#C6F9Fa",
+    height: 150,
+  },
+  cardText: {
+    color: "black",
+    fontWeight: "600",
+    fontSize: 16,
+    marginTop: 8,
+    textAlign: "center",
+  },
+});
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
     flexDirection: "column",
     justifyContent: "space-between",
-    
   },
   greeting: {
     fontSize: 24,

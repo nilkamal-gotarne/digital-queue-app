@@ -20,6 +20,7 @@
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/material-top-tabs": "^6.6.14",
     "@react-navigation/native": "^6.0.2",
+    "axios": "^1.7.9",
     "expo": "~51.0.28",
     "expo-barcode-scanner": "^13.0.1",
     "expo-camera": "^15.0.16",

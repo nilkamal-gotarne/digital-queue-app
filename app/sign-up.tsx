@@ -49,7 +49,6 @@ export default function SignUp() {
   const [signOpt, setSignOtp] = useState(false);
   const [timer, setTimer] = useState(120); // 2 minutes
   const [isResendDisabled, setIsResendDisabled] = useState(false);
-  console.log("otp----", otp);
   const isDisabled = !phoneNumber || !name || !email || !password || !password2;
   console.log(phoneNumber, name, email, password, password2);
 
@@ -159,7 +158,7 @@ export default function SignUp() {
     </div>
 </body>
 </html>`;
-        await sendOtpEmail(email, name, "OTP", html);
+        await sendOtpEmail(email, 'Otp Verification', html);
         alert("Otp send successful!");
         setSignOtp(true);
       } else {
@@ -246,6 +245,24 @@ export default function SignUp() {
           otp,
         });
         alert("Otp resend successful!");
+        const html = `<!DOCTYPE html>
+<html>
+<head>
+    <title>OTP Verification</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; text-align: center;">
+    <div style="max-width: 500px; margin: 20px auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #333;">${name} Your OTP Code</h2>
+        <p style="font-size: 16px; color: #555;">Use the following OTP to verify your identity. The OTP is valid for 10 minutes.</p>
+        <div style="font-size: 24px; font-weight: bold; color: #007bff; background: #f0f0f0; padding: 10px; border-radius: 5px; display: inline-block; margin: 10px 0;">
+      ${otp}
+        </div>
+        <p style="color: #777; font-size: 14px;">If you did not request this OTP, please ignore this email.</p>
+        <p style="color: #777; font-size: 14px;">Thank you,<br> Your Company Name</p>
+    </div>
+</body>
+</html>`;
+        await sendOtpEmail(email, 'Otp Verification', html);
         setIsResendDisabled(true);
         setTimer(120);
       } else {

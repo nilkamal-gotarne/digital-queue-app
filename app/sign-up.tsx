@@ -27,6 +27,7 @@ import {
   doc,
 } from "firebase/firestore";
 import OTPInput from "./otp";
+import sendOtpEmail from "./send-otp";
 interface OTPInputProps {
   handleSignUp: () => void;
 
@@ -40,7 +41,6 @@ export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const { setUser, setIsLogged } = useGlobalContext();
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
@@ -61,14 +61,8 @@ export default function SignUp() {
   }
 
   const handleSignUp = async () => {
-    if (!name) {
-      alert("Please enter your name.");
-      return;
-    }
-  
-    const trimmedName = name.trim();
-    if (trimmedName.length === 0) {
-      alert("Please enter a valid name.");
+    if (!phoneNumber || !name || !email || !password) {
+      alert("Please fill in all fields");
       return;
     }
 
@@ -82,56 +76,47 @@ export default function SignUp() {
       alert("Invalid input types");
       return;
     }
-  
+
+    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      alert("Please enter a valid email address.");
+      alert("Please enter a valid email address");
       return;
     }
-  
-    if (!phoneNumber) {
-      alert("Please enter your phone number.");
-      return;
-    }
-  
+
+    // Phone number format validation (assuming a simple 10-digit format)
     const phoneRegex = /^\d{10}$/;
     if (!phoneRegex.test(phoneNumber)) {
-      alert("Please enter a valid 10-digit phone number.");
+      alert("Please enter a valid 10-digit phone number");
       return;
     }
-  
-    if (!password) {
-      alert("Please enter your password.");
+
+    // Password strength validation
+    if (password.length < 8) {
+      alert("Password must be at least 8 characters long");
       return;
     }
-  
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(password)) {
-      alert(
-        "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
-      );
-      return;
-    }
-  
+
     try {
+      // Check if user with same phone number or email already exists
       const usersRef = collection(db, "users");
       const phoneQuery = query(
         usersRef,
         where("phoneNumber", "==", phoneNumber)
       );
       const emailQuery = query(usersRef, where("email", "==", email));
-  
+
       const [phoneSnapshot, emailSnapshot] = await Promise.all([
         getDocs(phoneQuery),
         getDocs(emailQuery),
       ]);
-  
+
       if (!phoneSnapshot.empty) {
         alert("A user with this phone number already exists");
         console.log("A user with this phone number already exists");
         return;
       }
-  
+
       if (!emailSnapshot.empty) {
         console.log("A user with this email already exists");
         alert("A user with this email already exists");
@@ -140,16 +125,39 @@ export default function SignUp() {
       const otp = generateOTP(6);
       const isVerified = false;
       console.log(otp);
+      
+      const now = Date.now();
+      const tenMinutesLater = now + 10 * 60 * 1000; 
+
       const userRef = await addDoc(collection(db, "users"), {
         phoneNumber,
         name,
         email,
         password,
         isVerified,
+        ExpireTime: new Date(tenMinutesLater),
         otp,
         role: "user",
       });
       if (userRef) {
+        const html = `<!DOCTYPE html>
+<html>
+<head>
+    <title>OTP Verification</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; text-align: center;">
+    <div style="max-width: 500px; margin: 20px auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #333;">${name} Your OTP Code</h2>
+        <p style="font-size: 16px; color: #555;">Use the following OTP to verify your identity. The OTP is valid for 10 minutes.</p>
+        <div style="font-size: 24px; font-weight: bold; color: #007bff; background: #f0f0f0; padding: 10px; border-radius: 5px; display: inline-block; margin: 10px 0;">
+      ${otp}
+        </div>
+        <p style="color: #777; font-size: 14px;">If you did not request this OTP, please ignore this email.</p>
+        <p style="color: #777; font-size: 14px;">Thank you,<br> Your Company Name</p>
+    </div>
+</body>
+</html>`;
+        await sendOtpEmail(email, name, "OTP", html);
         alert("Otp send successful!");
         setSignOtp(true);
       } else {
@@ -176,6 +184,10 @@ export default function SignUp() {
 
       if (userData.otp === otp.join("")) {
         const userDocRef = doc(db, "users", userDoc.id);
+        if(userData.ExpireTime >= Date.now()){
+          alert("Otp is expired");  
+          return
+        }
 
         await updateDoc(userDocRef, {
           isVerified: true,
@@ -206,8 +218,6 @@ export default function SignUp() {
       alert("Error during OTP verification. Please try again.");
     }
   };
-  
-  
 
   return (
     <LinearGradient
@@ -360,8 +370,6 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   input: {
-    borderColor: "#333",
-    borderWidth: 1,
     width: "100%",
     height: 50,
     backgroundColor: "rgba(255, 255, 255, 0.9)",

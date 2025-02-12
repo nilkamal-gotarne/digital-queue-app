@@ -125,43 +125,48 @@ export default function SignUp() {
       const otp = generateOTP(6);
       const isVerified = false;
       console.log(otp);
+      
+      const now = Date.now();
+      const tenMinutesLater = now + 10 * 60 * 1000; 
+
       const userRef = await addDoc(collection(db, "users"), {
         phoneNumber,
         name,
         email,
         password,
         isVerified,
+        ExpireTime: new Date(tenMinutesLater),
         otp,
         role: "user",
       });
       if (userRef) {
         const html = `<!DOCTYPE html>
-        <html>
-        <head>
-            <title>OTP Verification</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; text-align: center;">
-            <div style="max-width: 500px; margin: 20px auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
-                <h2 style="color: #333;">${name} Your OTP Code</h2>
-                <p style="font-size: 16px; color: #555;">Use the following OTP to verify your identity. The OTP is valid for 10 minutes.</p>
-                <div style="font-size: 24px; font-weight: bold; color: #007bff; background: #f0f0f0; padding: 10px; border-radius: 5px; display: inline-block; margin: 10px 0;">
-              ${otp}
-                </div>
-                <p style="color: #777; font-size: 14px;">If you did not request this OTP, please ignore this email.</p>
-                <p style="color: #777; font-size: 14px;">Thank you,<br> Your Company Name</p>
-            </div>
-        </body>
-        </html>`;
-                await sendOtpEmail(email, name, "OTP", html);
-                alert("Otp send successful!");
-                setSignOtp(true);
-              } else {
-                alert("Otp send failed!");
-              }
-            } catch (error) {
-              console.error("Error during sign up:", error);
-              alert("Error during sign up. Please try again.");
-            }
+<html>
+<head>
+    <title>OTP Verification</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; text-align: center;">
+    <div style="max-width: 500px; margin: 20px auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #333;">${name} Your OTP Code</h2>
+        <p style="font-size: 16px; color: #555;">Use the following OTP to verify your identity. The OTP is valid for 10 minutes.</p>
+        <div style="font-size: 24px; font-weight: bold; color: #007bff; background: #f0f0f0; padding: 10px; border-radius: 5px; display: inline-block; margin: 10px 0;">
+      ${otp}
+        </div>
+        <p style="color: #777; font-size: 14px;">If you did not request this OTP, please ignore this email.</p>
+        <p style="color: #777; font-size: 14px;">Thank you,<br> Your Company Name</p>
+    </div>
+</body>
+</html>`;
+        await sendOtpEmail(email, name, "OTP", html);
+        alert("Otp send successful!");
+        setSignOtp(true);
+      } else {
+        alert("Otp send failed!");
+      }
+    } catch (error) {
+      console.error("Error during sign up:", error);
+      alert("Error during sign up. Please try again.");
+    }
   };
   const handleVerifyOtp = async () => {
     try {
@@ -179,6 +184,10 @@ export default function SignUp() {
 
       if (userData.otp === otp.join("")) {
         const userDocRef = doc(db, "users", userDoc.id);
+        if(userData.ExpireTime >= Date.now()){
+          alert("Otp is expired");  
+          return
+        }
 
         await updateDoc(userDocRef, {
           isVerified: true,

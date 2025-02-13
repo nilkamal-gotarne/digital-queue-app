@@ -38,6 +38,7 @@ function HomeTab() {
   const { user }: any = useGlobalContext();
   const [joinedQueues, setJoinedQueues] = useState<any[]>([]);
   const [currentTime, setCurrentTime] = useState(moment());
+  // console.log("joinedQueues-------", joinedQueues);
 
   useEffect(() => {
     let unsubscribe: () => void;
@@ -285,15 +286,15 @@ function HomeTab() {
             <View style={[styles.iconCircle, { backgroundColor: "#e1777f" }]}>
               <Entypo name="cross" size={40} color="white" />
             </View>
-            <Text style={styles.bigButtonText}>Past Joined Queues</Text>
+            <Text style={styles.bigButtonText2}>Past Joined Queues</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.joinedQueuesSection}>
-          <Text style={styles.sectionTitle}>Current Queues</Text>
-          {joinedQueues.length > 0 ? (
+          <Text style={styles.sectionTitle}>Temporarily Cancelled Queues</Text>
+          {/* {joinedQueues.length > 0 ? (
             joinedQueues.map((queue, index) => (
               <View key={index} style={getQueueItemStyle(queue.status)}>
-                <Text style={styles.queueText}>Queue: {queue.queueId}</Text>
+                <Text style={styles.queueText}>Token: {queue.token}</Text>
                 <Text style={styles.queueText}>Position: {queue.position}</Text>
                 <Text style={styles.queueText}>Status: {queue.status}</Text>
                 <Text style={styles.queueText}>
@@ -330,14 +331,46 @@ function HomeTab() {
             <Text style={styles.emptyQueueText}>
               You haven't joined any queues yet.
             </Text>
-          )}
+          )} */}
+
+          {joinedQueues.map((queue) => (
+            <TouchableOpacity
+              key={queue.id}
+              style={styles.queueCard}
+              onPress={() => router.push(`/token-page?id=${queue.id}`)}
+            >
+              <View style={styles.queueHeader}>
+                <View style={styles.queueIndex}>
+                  <Text style={styles.queueIndexText}>{queue.position}</Text>
+                </View>
+                <View style={styles.queueInfo}>
+                  <Text style={styles.ticketText}>
+                    Ticket No - {queue.token}
+                  </Text>
+                  <Text style={styles.queueNo}>Queue No - {queue.queueId}</Text>
+                </View>
+                <View style={styles.queueTime}>
+                  <Text style={styles.queueDate}>
+                    {moment(queue.createdAt.toDate()).format("DD-MM-YYYY")}
+                  </Text>
+                  <Text style={styles.queueHour}>
+                    {moment(queue.createdAt.toDate()).format("hh:mm A")}
+                  </Text>
+                </View>
+              </View>
+
+              <TouchableOpacity style={styles.resumeButton}>
+                <Text style={styles.resumeText}>Resume Queue</Text>
+              </TouchableOpacity>
+            </TouchableOpacity>
+          ))}
         </View>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.temporaryLeaveButton}
           onPress={() => router.push("/token-page")}
         >
           <Text style={styles.leaveButtonText}>Temporary Leave</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </ScrollView>
     </LinearGradient>
   );
@@ -376,7 +409,15 @@ function ProfileTab() {
   };
 
   return (
-    <LinearGradient colors={["#ffffff", "#ffffff"]} style={{ flex: 1 ,flexDirection:"column",justifyContent:"space-between",padding:20}} >
+    <LinearGradient
+      colors={["#ffffff", "#ffffff"]}
+      style={{
+        flex: 1,
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: 20,
+      }}
+    >
       <View>
         <View
           style={{
@@ -629,10 +670,17 @@ export default function Home() {
         component={HomeTab}
         options={{
           tabBarLabel: "Home",
-          // headerTitle: user?.name || "Home",
-          headerTitle: `Hi ${user?.name || "Home"}`,
+          headerTitle: () => (
+            <View>
+              <Text style={{ fontSize: 18, fontWeight: "bold",color:"#fff" }}>
+                Hi {user?.name || "Home"}
+              </Text>
+              <Text style={{ fontSize: 16, color: "#eee" }}>Good Morning</Text>
+            </View>
+          ),
         }}
       />
+
       <Tab.Screen
         name="Profile"
         component={ProfileTab}
@@ -669,7 +717,7 @@ const styles = StyleSheet.create({
     height: 160,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -682,7 +730,7 @@ const styles = StyleSheet.create({
     height: 160,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -710,7 +758,8 @@ const styles = StyleSheet.create({
   iconCircle: {
     backgroundColor: "white",
     padding: 10,
-    borderRadius: 40,
+    borderRadius: 100,
+    marginBottom: 10,
   },
   bigButtonText: {
     color: "black",
@@ -718,8 +767,16 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 15,
   },
+  bigButtonText2: {
+    color: "black",
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 15,
+    marginTop: 10,
+  },
   joinedQueuesSection: {
     marginTop: 20,
+    
   },
   sectionTitle: {
     fontSize: 20,
@@ -788,9 +845,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   resumeButton: {
-    backgroundColor: "green",
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: "#C7DAFF",
+    padding: 12,
+    borderRadius: 25,
     marginTop: 10,
     alignItems: "center",
   },
@@ -800,5 +857,60 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginTop: 10,
     alignItems: "center",
+  },
+
+  queueCard: {
+    backgroundColor: "#f8f8f8",
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 12,
+  },
+  queueHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  queueIndex: {
+    backgroundColor: "#3C73DC",
+    borderRadius: 5,
+    width: 30,
+    height: 30,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  queueIndexText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  queueInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  ticketText: {
+    fontSize: 16,
+    fontWeight: "semibold",
+    color: "#333",
+  },
+  queueNo: {
+    fontSize: 14,
+    color: "#666",
+  },
+  queueTime: {
+    alignItems: "flex-end",
+  },
+  queueDate: {
+    fontSize: 14,
+    color: "#5484E0",
+  },
+  queueHour: {
+    fontSize: 14,
+    // fontWeight: "bold",
+    color: "#5484E0",
+  },
+
+  resumeText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#000",
   },
 });

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -20,6 +21,7 @@ export default function QueueOwnerLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { setUser, setIsLogged }: any = useGlobalContext();
 
@@ -38,6 +40,7 @@ export default function QueueOwnerLogin() {
       alert("Please enter a valid password.");
       return;
     }
+    setLoading(true); // Start Loading
 
     try {
       const queueOwnersRef = collection(db, "queue_owners");
@@ -46,6 +49,8 @@ export default function QueueOwnerLogin() {
 
       if (querySnapshot.empty) {
         alert("Queue owner not found. Please check your email.");
+        setLoading(false);
+
         return;
       }
 
@@ -128,7 +133,11 @@ export default function QueueOwnerLogin() {
           </View>
           <View style={styles.bottomContainer}>
             <TouchableOpacity style={styles.button} onPress={handleLogin}>
-              <Text style={styles.buttonText}>Login</Text>
+              {loading ? (
+                <ActivityIndicator size="small" color="white" /> // 🔥 Show Loader
+              ) : (
+                <Text style={styles.buttonText}>Login</Text>
+              )}
             </TouchableOpacity>
             {/* <View>
         <TouchableOpacity
@@ -139,7 +148,6 @@ export default function QueueOwnerLogin() {
           <Text style={styles.link}>Sign Up</Text>
         </TouchableOpacity>
       </View> */}
-            
           </View>
           {/* <View style={styles.bottomLinks}>
         <TouchableOpacity onPress={() => router.back()}>

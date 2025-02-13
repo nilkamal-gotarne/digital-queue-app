@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   card: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#FFFFFF",
     padding: 16,
     margin: 10,
     borderRadius: 15,
@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
   memberText: {
     marginTop: 5,
     color: "#374151",
+    fontWeight:"semibold"
   },
 });
 

@@ -550,10 +550,16 @@ export default function JoinQueue() {
         const joinTime = serverTimestamp();
         const endTime = moment().add(sessionData.avgWaitingTime, "minutes").toDate();
         const waitingTime = moment(endTime).diff(moment(), "minutes");
+
+        function generateToken(): string {
+          let randomNumbers = Math.floor(1000 + Math.random() * 9000); // Generates a 4-digit number
+          return `DQ${randomNumbers}`;
+      }
   
         // Create the new queue member object
         const newQueueMember = {
           userId: user.id,
+          token: generateToken(),
           queueId: shortestQueue.id,
           joinTime: joinTime,
           lotId: lotData.id,
@@ -648,7 +654,7 @@ export default function JoinQueue() {
             setOwnerName(null);
           }}
         >
-          <Text style={styles.buttonText}>Scan Again</Text>
+          <Text style={styles.buttonText}>Join the queue</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -716,7 +722,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#3C73DC',
     padding: 12,
     borderRadius:25 ,
-    marginTop: 10,
+    marginTop: 16,
     alignItems: 'center',
   },
   buttonText: {

@@ -9,6 +9,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useGlobalContext } from "../context/GlobalContext";
@@ -52,6 +53,7 @@ export default function SignUp() {
   const [isResendDisabled, setIsResendDisabled] = useState(false);
   const isDisabled = !phoneNumber || !name || !email || !password || !password2;
   console.log(phoneNumber, name, email, password, password2);
+  const [isLoading, setIsLoading] = useState(false);
 
   function generateOTP(length = 6) {
     const digits = "0123456789";
@@ -98,6 +100,7 @@ export default function SignUp() {
       alert("Password must be at least 8 characters long");
       return;
     }
+    setIsLoading(true); // Start loading
 
     try {
       // Check if user with same phone number or email already exists
@@ -159,7 +162,7 @@ export default function SignUp() {
     </div>
 </body>
 </html>`;
-        await sendOtpEmail(email, 'Otp Verification', html);
+        await sendOtpEmail(email, "Otp Verification", html);
         alert("Otp send successful!");
         setSignOtp(true);
       } else {
@@ -263,7 +266,7 @@ export default function SignUp() {
     </div>
 </body>
 </html>`;
-        await sendOtpEmail(email, 'Otp Verification', html);
+        await sendOtpEmail(email, "Otp Verification", html);
         setIsResendDisabled(true);
         setTimer(120);
       } else {
@@ -399,7 +402,11 @@ export default function SignUp() {
                   onPress={() => handleSignUp()}
                   disabled={isDisabled}
                 >
-                  <Text style={styles.buttonText}>Sign Up</Text>
+                  {isLoading ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Text style={styles.buttonText}>Sign Up</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </>

@@ -7,6 +7,7 @@ import {
 } from "@expo/vector-icons";
 import { useGlobalContext } from "../context/GlobalContext";
 import { db } from "@/firebaseConfig";
+import { router, useLocalSearchParams } from "expo-router";
 import moment from "moment";
 import {
   collection,
@@ -23,8 +24,12 @@ import {
 
 const TokenDetailsScreen = () => {
   const { user }: any = useGlobalContext();
+  const { id } = useLocalSearchParams();
+
   const [joinedQueues, setJoinedQueues] = useState<any[]>([]);
   const [currentTime, setCurrentTime] = useState(moment());
+  //  console.log("joinedQueues-------", joinedQueues);
+  // console.log("id---------------", id);
 
   useEffect(() => {
     let unsubscribe: () => void;
@@ -43,7 +48,9 @@ const TokenDetailsScreen = () => {
             ...doc.data(),
             id: doc.id,
           }));
-          setJoinedQueues(queues);
+          const filteredQueues = queues.filter((queue) => queue.id === id);
+          setJoinedQueues(filteredQueues);
+          console.log("filteredQueues-------", filteredQueues);
         });
       }
     };
@@ -77,7 +84,7 @@ const TokenDetailsScreen = () => {
   };
 
   const getRemainingTime = (endTime: any) => {
-    const end = moment(endTime.toDate());
+    const end = moment(endTime?.toDate());
     const duration = moment.duration(end.diff(currentTime));
 
     if (duration.asSeconds() <= 0) {
@@ -129,7 +136,7 @@ const TokenDetailsScreen = () => {
         if (previousEndTime) {
           newEndTime = previousEndTime;
         } else {
-          newEndTime = memberData.endTime.toDate();
+          newEndTime = memberData.endTime?.toDate();
         }
 
         batch.update(memberRef, {
@@ -137,13 +144,15 @@ const TokenDetailsScreen = () => {
           endTime: newEndTime,
         });
 
-        previousEndTime = memberData.endTime.toDate();
+        previousEndTime = memberData.endTime?.toDate();
       }
 
       // Commit the batch
       await batch.commit();
 
       console.log("Successfully left the queue and updated other members");
+      alert("Successfully left the queue");
+      router.push("/home");
     } catch (error) {
       console.error("Error leaving queue:", error);
     }
@@ -167,7 +176,7 @@ const TokenDetailsScreen = () => {
 
         // Calculate the actual wait time for the completed member
         const actualWaitTime = moment().diff(
-          moment(memberData.startTime.toDate()),
+          moment(memberData.startTime?.toDate()),
           "minutes"
         );
 
@@ -203,7 +212,7 @@ const TokenDetailsScreen = () => {
         const membersAfterSnapshot = await getDocs(membersAfterQuery);
 
         // Calculate remaining time for the completed member
-        const remainingTime = moment(memberData.endTime.toDate()).diff(
+        const remainingTime = moment(memberData.endTime?.toDate()).diff(
           moment(),
           "minutes"
         );
@@ -213,9 +222,9 @@ const TokenDetailsScreen = () => {
           const memberRef = doc.ref;
           const memberData = doc.data() as any;
           const newPosition = memberData.position - 1;
-          const newEndTime = moment(memberData.endTime.toDate())
+          const newEndTime = moment(memberData.endTime?.toDate())
             .subtract(remainingTime, "minutes")
-            .toDate();
+            ?.toDate();
           const newWaitingTime = Math.max(
             0,
             moment(newEndTime).diff(moment(), "minutes")
@@ -318,7 +327,12 @@ const TokenDetailsScreen = () => {
         <View>
           <View style={styles.upperSection}>
             <Text style={styles.tokenText}>Token Number is</Text>
-            <Text style={styles.tokenIdText}>BD8749</Text>
+            <Text style={styles.tokenIdText}>{joinedQueues[0]?.token}</Text>
+          </View>
+          <View style={styles.upperSection}>
+            <Text style={styles.tokenText}>
+              Queue No. {joinedQueues[0]?.waitingTime}
+            </Text>
           </View>
           <View style={styles.tokenIconContainer}>
             <View style={styles.iconContainer}>
@@ -336,12 +350,15 @@ const TokenDetailsScreen = () => {
                 />
               </View>
 
+              {/* <Text style={styles.infoText}>7:10 PM</Text> */}
               <Text style={styles.infoText}>7:10 PM</Text>
             </View>
           </View>
           <View style={styles.timeContainer}>
             <Text style={styles.timeText}>Approx Waiting Time</Text>
-            <Text style={styles.timeValText}>10:30:45</Text>
+            <Text style={styles.timeValText}>
+              {getRemainingTime(joinedQueues[0]?.endTime)}
+            </Text>
           </View>
         </View>
       </View>
@@ -358,14 +375,47 @@ const TokenDetailsScreen = () => {
         Would you like to exit the Queue{" "}
       </Text>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.permanentButton}>
-          <Text style={styles.buttonText}>Permanent</Text>
-        </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.temporaryButton, { backgroundColor: "#14a979" }]}
+          style={styles.permanentButton}
+          onPress={() =>
+            Alert.alert("Leave Queue", "Are you sure you want to leave?", [
+              {
+                text: "Cancel",
+                onPress: () => console.log("Cancel Pressed"),
+                style: "cancel",
+              },
+
+              {
+                text: "OK",
+                onPress: () =>
+                  handleLeaveQueue(
+                    joinedQueues[0]?.id,
+                    joinedQueues[0]?.queueId,
+                    joinedQueues[0]?.position
+                  ),
+              },
+            ])
+          }
         >
-          <Text style={styles.buttonText}>Temporary</Text>
+          <Text style={styles.leaveButtonText}>Permanently Leave</Text>
         </TouchableOpacity>
+        {joinedQueues[0]?.status === "temporary_leave" ? (
+          <TouchableOpacity
+            style={styles.resumeButton}
+            onPress={() => updateMemberStatus(joinedQueues[0]?.id, "waiting")}
+          >
+            <Text style={styles.leaveButtonText}>Resume</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.temporaryLeaveButton}
+            onPress={() =>
+              updateMemberStatus(joinedQueues[0]?.id, "temporary_leave")
+            }
+          >
+            <Text style={styles.leaveButtonText}>Temporary Leave</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -402,15 +452,44 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     backgroundColor: "#c7daff",
   },
+  leaveButton: {
+    backgroundColor: "#ff6b6b",
+    padding: 12,
+    borderRadius: 25,
+    marginTop: 10,
+    alignItems: "center",
+  },
+  leaveButtonText: {
+    color: "#000",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  resumeButton: {
+    backgroundColor: "#C7DAFF",
+    padding: 10,
+    alignItems: "center",
+    borderRadius: 40,
+    alignSelf: "center",
+    paddingHorizontal: 26,
+    width: 150,
+  },
+  temporaryLeaveButton: {
+    backgroundColor: "#14a979",
+    padding: 10,
+    alignItems: "center",
+    borderRadius: 40,
+    alignSelf: "center",
+    paddingHorizontal: 26,
+  },
   upperSection: {
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 20,
   },
   tokenText: {
     fontSize: 13,
     color: "black",
+    fontWeight:"500"
   },
   tokenIdText: {
     color: "#fe666e",
@@ -448,7 +527,7 @@ const styles = StyleSheet.create({
     color: "black",
   },
   timeValText: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: "bold",
     color: "black",
   },
@@ -576,9 +655,10 @@ const styles = StyleSheet.create({
   temporaryButton: {
     padding: 10,
     alignItems: "center",
-    borderRadius: 40,
+    borderRadius: 25,
     alignSelf: "center",
     paddingHorizontal: 26,
+    marginTop: 10,
   },
   buttonText: {
     color: "#fff",

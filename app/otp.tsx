@@ -48,7 +48,7 @@ const OTPInput: React.FC<OTPInputProps> = ({ handleSignUp,otp,setOtp }) => {
   return (
     <View>
       <Text style={styles.label2}>
-        Enter OTP<Text style={styles.asterisk}>*</Text>
+        OTP Verification<Text style={styles.asterisk}>*</Text>
       </Text>
       <View style={styles.otpContainer}>
         {otp.map((value, index) => (
@@ -94,10 +94,12 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
     borderWidth: 1,
-    borderColor: "#ccc",
     textAlign: "center",
     fontSize: 18,
     marginHorizontal: 5,
+    borderRadius: 8,
+    borderColor: "#3C73DC",
+
   },
   resend: {
     textAlign: "center",

@@ -612,7 +612,10 @@ function HomeTab() {
       {/* Cards Section */}
       <View style={styles2.cardsContainer}>
         {/* Total Queue Members */}
-        <TouchableOpacity  style={[styles2.card, styles2.yellowCard]}onPress={() => router.push("/queue-home-page")}>
+        <TouchableOpacity
+          style={[styles2.card, styles2.yellowCard]}
+          onPress={() => router.push("/queue-home-page")}
+        >
           <FontAwesome
             name="users"
             size={32}
@@ -620,10 +623,13 @@ function HomeTab() {
             style={styles2.icon}
           />
           <Text style={styles2.cardText}>Total Queue Members</Text>
-        </TouchableOpacity >
+        </TouchableOpacity>
 
         {/* Completed Queue Members */}
-        <TouchableOpacity style={[styles2.card, styles2.blueCard]}onPress={() => router.push("/complete-members")} >
+        <TouchableOpacity
+          style={[styles2.card, styles2.blueCard]}
+          onPress={() => router.push("/complete-members")}
+        >
           <Feather
             name="check-circle"
             size={32}
@@ -728,7 +734,7 @@ function ProfileTab() {
       <Text style={styles.profileText}>Phone: {user?.phoneNumber}</Text> */}
       <View>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Logout</Text>
+          <Text style={styles.logoutButtonText}>Log Out</Text>
         </TouchableOpacity>
       </View>
     </LinearGradient>
@@ -736,6 +742,7 @@ function ProfileTab() {
 }
 
 export default function OwnerHome() {
+  const { user }: any = useGlobalContext();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -778,7 +785,14 @@ export default function OwnerHome() {
         component={HomeTab}
         options={{
           tabBarLabel: "Home",
-          headerTitle: "Home",
+          headerTitle: () => (
+            <View>
+              <Text style={{ fontSize: 18, fontWeight: "bold", color: "#fff" }}>
+                Hi {user?.name || "Home"}
+              </Text>
+              <Text style={{ fontSize: 16, color: "#eee" }}>Good Morning</Text>
+            </View>
+          ),
         }}
       />
       <Tab.Screen

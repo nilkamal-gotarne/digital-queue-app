@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
   eyeIcon: {
     position: "absolute",
     right: 10,
-    top: 40,
+    top: 46,
   },
   button: {
     backgroundColor: "#3C73DC",

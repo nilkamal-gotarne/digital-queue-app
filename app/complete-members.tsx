@@ -51,7 +51,7 @@ const CompletedMembersScreen = () => {
   const { user }: any = useGlobalContext();
   const [pastQueues, setPastQueues] = useState<any[]>([]);
 
-  const fetchRecentMembers = async () => {
+  const CompletedMember = async () => {
     if (!user?.id) return;
 
     try {
@@ -78,12 +78,6 @@ const CompletedMembersScreen = () => {
       // Fetch user data for each queue member
       const userIds = membersData.map((member: any) => member.userId);
       const usersRef = collection(db, "users");
-      // const userQuery = query(usersRef, where(documentId(), "in", userIds));
-      // const userSnapshot = await getDocs(userQuery);
-      // const userData = userSnapshot.docs.reduce((acc, doc) => {
-      //   acc[doc.id] = doc.data() as User;
-      //   return acc;
-      // }, {} as Record<string, User>);
       const findUserData = async () => {
         const userSnapshot = await getDocs(query(usersRef));
         const userData = userSnapshot.docs.reduce((acc, doc) => {
@@ -118,7 +112,7 @@ const CompletedMembersScreen = () => {
           (queue) => queue.id === member.queueId
         );
         const matchingLot = lots.find((lot) => lot.id === member.lotId);
-
+        // console.log(matchingQueue)
         return {
           ...member,
           name: userSnapshot[member.userId]?.name || "Unknown",
@@ -126,16 +120,19 @@ const CompletedMembersScreen = () => {
           phone: userSnapshot[member.userId]?.phoneNumber || "Unknown",
           lotName: matchingLot?.name || "Unknown",
           queueName: matchingQueue?.name || "Unknown",
-          number: matchingQueue?.phoneNumber || "Unknown",
+          queueId: matchingQueue?.id || "Unknown",
           image:
             matchingQueue?.image ||
             "https://randomuser.me/api/portraits/men/1.jpg",
         } as any;
       });
 
-      console.log(">>> ~ mergedData ~ mergedData:", mergedData);
-      const filerData = mergedData.filter((member) => member.status !== "left");
-      setPastQueues(filerData);
+      const filerData = mergedData.filter((member) => member.status !== "left" && member.status !== "waiting");
+      console.log(">>> ~ mergedData ~ mergedData:", filerData);
+      const findUser = doc(db, 'queue_owners', user.id)
+      const userDoc = await getDoc(findUser)
+      const fileteronQueueOnner = filerData.filter((member) => member.queueId === userDoc.data()?.queueId)
+      setPastQueues(fileteronQueueOnner);
     } catch (error) {
       console.error("Error fetching queue members:", error);
     }
@@ -178,7 +175,7 @@ const CompletedMembersScreen = () => {
     // };
 
     // fetchPastQueues();
-    fetchRecentMembers();
+   CompletedMember();
   }, [user]);
   return (
     <SafeAreaView style={styles.container}>

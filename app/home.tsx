@@ -359,9 +359,18 @@ function HomeTab() {
                 </View>
               </View>
 
-              <TouchableOpacity style={styles.resumeButton}>
-                <Text style={styles.resumeText}>Resume Queue</Text>
-              </TouchableOpacity>
+              {queue.status === "temporary_leave" ? (
+                <TouchableOpacity style={styles.resumeButton}>
+                  <Text style={styles.resumeText}>Resume Queue</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={styles.resumeButton}
+                  onPress={() => router.push(`/token-page?id=${queue.id}`)}
+                >
+                  <Text style={styles.resumeText}>View details</Text>
+                </TouchableOpacity>
+              )}
             </TouchableOpacity>
           ))}
         </View>
@@ -630,8 +639,8 @@ export default function Home() {
   const Greeting = () => {
     const currentHour = new Date().getHours();
     const greeting = currentHour < 12 ? "Good Morning" : "Good Evening";
-    return greeting
-  }  
+    return greeting;
+  };
 
   return (
     <Tab.Navigator
@@ -677,7 +686,7 @@ export default function Home() {
           tabBarLabel: "Home",
           headerTitle: () => (
             <View>
-              <Text style={{ fontSize: 18, fontWeight: "bold",color:"#fff" }}>
+              <Text style={{ fontSize: 18, fontWeight: "bold", color: "#fff" }}>
                 Hi {user?.name || "Home"}
               </Text>
               <Text style={{ fontSize: 16, color: "#eee" }}>{Greeting()}</Text>
@@ -781,7 +790,6 @@ const styles = StyleSheet.create({
   },
   joinedQueuesSection: {
     marginTop: 20,
-    
   },
   sectionTitle: {
     fontSize: 20,

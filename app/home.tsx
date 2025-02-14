@@ -8,6 +8,7 @@ import {
   Alert,
   TextInput,
   Modal,
+  FlatList,
 } from "react-native";
 import { useGlobalContext } from "../context/GlobalContext";
 import { router } from "expo-router";
@@ -26,11 +27,42 @@ import {
 } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Entypo, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  Entypo,
+  FontAwesome,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import moment from "moment";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "react-native";
+const notifications = [
+  {
+    id: "1",
+    title: "Queue Owner",
+    message: "Need to report to the queue owner within 10 minutes...",
+    time: "10:00 AM",
+  },
+  {
+    id: "2",
+    title: "Queue Owner",
+    message: "Need to report to the queue owner within 10 minutes...",
+    time: "10:00 AM",
+  },
+  {
+    id: "3",
+    title: "Queue Owner",
+    message: "Need to report to the queue owner within 10 minutes...",
+    time: "10:00 AM",
+  },
+  {
+    id: "4",
+    title: "Queue Owner",
+    message: "Need to report to the queue owner within 10 minutes...",
+    time: "10:00 AM",
+  },
+];
 
 const Tab = createBottomTabNavigator();
 
@@ -360,7 +392,12 @@ function HomeTab() {
               </View>
 
               {queue.status === "temporary_leave" ? (
-                <TouchableOpacity style={styles.resumeButton} onPress={()=>{updateMemberStatus(queue.id, 'waiting')}}>
+                <TouchableOpacity
+                  style={styles.resumeButton}
+                  onPress={() => {
+                    updateMemberStatus(queue.id, "waiting");
+                  }}
+                >
                   <Text style={styles.resumeText}>Resume Queue</Text>
                 </TouchableOpacity>
               ) : (
@@ -632,6 +669,37 @@ function ProfileTab() {
     </LinearGradient>
   );
 }
+function NotificationScreen() {
+  return (
+    <View style={styles2.container}>
+      {/* Header */}
+
+      {/* Notification List */}
+      <FlatList
+        data={notifications}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles2.notificationItem}>
+            {/* Profile Icon */}
+
+            <View style={styles2.avatar}>
+              <Text style={styles2.avatarText}>QO</Text>
+            </View>
+            {/* Notification Content */}
+            <View style={styles2.notificationContainer}>
+              <View style={styles2.notificationContent}>
+                <Text style={styles2.notificationTitle}>{item.title}</Text>
+                <Text style={styles2.notificationMessage}>{item.message}</Text>
+              </View>
+              {/* Time */}
+              <Text style={styles2.notificationTime}>{item.time}</Text>
+            </View>
+          </View>
+        )}
+      />
+    </View>
+  );
+}
 
 export default function Home() {
   const { user }: any = useGlobalContext();
@@ -650,6 +718,8 @@ export default function Home() {
 
           if (route.name === "Home") {
             iconName = focused ? "home" : "home-outline";
+          } else if (route.name === "Notification") {
+            iconName = focused ? "notifications" : "notifications-outline"; // 🔔 Notification Icon
           } else if (route.name === "Profile") {
             iconName = focused ? "person" : "person-outline";
           }
@@ -692,6 +762,14 @@ export default function Home() {
               <Text style={{ fontSize: 16, color: "#eee" }}>{Greeting()}</Text>
             </View>
           ),
+        }}
+      />
+      <Tab.Screen
+        name="Notification"
+        component={NotificationScreen}
+        options={{
+          tabBarLabel: "Notification",
+          headerTitle: "Notification",
         }}
       />
 
@@ -925,5 +1003,68 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     color: "#000",
+  },
+});
+
+const styles2 = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  notificationItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    backgroundColor: "#3C73DC",
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  notificationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: "#fff",
+    marginBottom: 5,
+    borderRadius: 10,
+    position: "relative", // Ensures absolute positioning works
+  },
+  notificationContent: {
+    flex: 1,
+  },
+  notificationTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  notificationMessage: {
+    color: "#666",
+  },
+  notificationTime: {
+    color: "#3C73DC",
+    position: "absolute", // Fixes time to the top-right
+    top: 5,
+    fontSize: 12,
+    right: 55,
+  },
+  tabBar: {
+    backgroundColor: "#fff",
+    paddingBottom: 10,
+    height: 60,
+  },
+  screen: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

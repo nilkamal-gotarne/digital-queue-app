@@ -627,6 +627,11 @@ function ProfileTab() {
 export default function Home() {
   const { user }: any = useGlobalContext();
   console.log("user-------ddmddm", user);
+  const Greeting = () => {
+    const currentHour = new Date().getHours();
+    const greeting = currentHour < 12 ? "Good Morning" : "Good Evening";
+    return greeting
+  }  
 
   return (
     <Tab.Navigator
@@ -675,7 +680,7 @@ export default function Home() {
               <Text style={{ fontSize: 18, fontWeight: "bold",color:"#fff" }}>
                 Hi {user?.name || "Home"}
               </Text>
-              <Text style={{ fontSize: 16, color: "#eee" }}>Good Morning</Text>
+              <Text style={{ fontSize: 16, color: "#eee" }}>{Greeting()}</Text>
             </View>
           ),
         }}

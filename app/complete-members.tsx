@@ -127,6 +127,9 @@ const CompletedMembersScreen = () => {
           lotName: matchingLot?.name || "Unknown",
           queueName: matchingQueue?.name || "Unknown",
           number: matchingQueue?.phoneNumber || "Unknown",
+          image:
+            matchingQueue?.image ||
+            "https://randomuser.me/api/portraits/men/1.jpg",
         } as any;
       });
 
@@ -190,9 +193,7 @@ const CompletedMembersScreen = () => {
             <View style={styles.cardHeader}>
               <Image
                 source={{
-                  uri:
-                    item.image ||
-                    "https://randomuser.me/api/portraits/men/1.jpg",
+                  uri: item.image,
                 }}
                 style={styles.profileImage}
               />

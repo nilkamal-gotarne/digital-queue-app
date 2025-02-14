@@ -470,14 +470,14 @@ export default function JoinQueue() {
       // Check if admin has an active session created today
       const sessionsRef = collection(db, "sessions");
       const today = moment().startOf("day");
-      console.log(today)
+      console.log(today);
       const sessionQuery = query(
         sessionsRef,
         where("adminId", "==", adminId),
         where("createdAt", ">=", today.format())
       );
       const sessionSnapshot = await getDocs(sessionQuery);
-      console.log(sessionSnapshot.docs)
+      console.log(sessionSnapshot.docs);
 
       if (sessionSnapshot.empty) {
         Alert.alert("Error", "No active session found for today");
@@ -584,7 +584,7 @@ export default function JoinQueue() {
         const positionSnapshot = await getDocs(positionQuery);
 
         if (!positionSnapshot.empty) {
-          Alert.alert('error',"Position already taken");
+          Alert.alert("error", "Position already taken");
         }
 
         // Calculate join time, end time, and waiting time
@@ -601,6 +601,7 @@ export default function JoinQueue() {
           joinTime: joinTime,
           lotId: lotData.id,
           endTime: endTime,
+          token: generateToken(),
           position: newPosition,
           waitingTime: waitingTime,
           status: "waiting",
@@ -623,6 +624,10 @@ export default function JoinQueue() {
       setIsLoading(false);
     }
   };
+  function generateToken(): string {
+    let randomNumbers = Math.floor(1000 + Math.random() * 9000); // Generates a 4-digit number
+    return `DQ${randomNumbers}`;
+  }
   if (!cameraPermission) {
     return (
       <View style={styles.container}>

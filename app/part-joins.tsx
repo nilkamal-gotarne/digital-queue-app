@@ -26,6 +26,7 @@ export default function PastQueues() {
   useEffect(() => {
     const fetchPastQueues = async () => {
       if (user?.id) {
+        console.log(user.id);
         const queueMembersRef = collection(db, "queue_members");
         const q = query(
           queueMembersRef,
@@ -35,6 +36,7 @@ export default function PastQueues() {
             "rejected",
             "not_available",
             "transferred",
+            'left'
           ]),
           orderBy("endTime", "desc")
         );
@@ -45,6 +47,7 @@ export default function PastQueues() {
             id: doc.id,
             ...doc.data(),
           }));
+          console.log(queues)
           setPastQueues(queues);
         } catch (error) {
           console.error("Error fetching past queues:", error);
@@ -67,7 +70,7 @@ export default function PastQueues() {
 
   const renderQueueItem = ({ item }: { item: any }) => (
     <TouchableOpacity style={styles.queueItem} onPress={() => openModal(item)}>
-      <Text style={styles.queueText}>Queue Id: {item.queueId}</Text>
+      <Text style={styles.queueText}>Token No: {item.token}</Text>
       <Text style={styles.queueText}>Status: {item.status}</Text>
       <Text style={styles.queueText}>
         End Time:{" "}
@@ -176,7 +179,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 5,
     color: "#333",
-    textTransform: "capitalize",
+    // textTransform: "capitalize",
     fontWeight: "bold",
   },
   emptyText: {

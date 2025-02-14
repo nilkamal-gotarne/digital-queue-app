@@ -360,7 +360,7 @@ function HomeTab() {
               </View>
 
               {queue.status === "temporary_leave" ? (
-                <TouchableOpacity style={styles.resumeButton}>
+                <TouchableOpacity style={styles.resumeButton} onPress={()=>{updateMemberStatus(queue.id, 'waiting')}}>
                   <Text style={styles.resumeText}>Resume Queue</Text>
                 </TouchableOpacity>
               ) : (
